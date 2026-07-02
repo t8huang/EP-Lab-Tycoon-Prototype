@@ -13,20 +13,29 @@ Over 200,000 Canadians are referred for cardiac ablation each year, and most wai
 
 ## Run it
 
-Open `index.html` in any modern browser. No build step and nothing to install.
+Play it live: **https://t8huang.github.io/EP-Lab-Tycoon-Prototype/**
+
+Or open `index.html` in any modern browser. No build step and nothing to install.
 
 > Note: icons currently load from a CDN, so keep internet on. An offline build can inline them for demos on locked-down networks.
 
 ## What the prototype shows
 
-A single day in the lab, as a choose-your-path storyboard:
+Two modes, reached from the title screen.
 
-- **Cover** — sets the scene (8 ablations booked, 2 EP labs, 4 recovery beds, the team)
-- **4 decision points** — open the day (staffing), a nurse calls in sick, recovery-bed gridlock, an emergency add-on
+### 1. Play a shift (narrative)
+
+A single day in the lab as a choose-your-path game:
+
+- **Randomized events** — every shift opens with a staffing decision, then draws 3 of 7 events (sick call, recovery-bed gridlock, emergency add-on, equipment fault, supply shortage, a tech leaving, an add-on request) in random order, so no two runs are alike
 - Each choice **ripples through the KPIs** — cases done, patient wait, staff strain, patient safety, and cost
-- **Shift report** — a star rating, a recap of your decisions, and a decision-support "what-if" teaser
+- **Shift report** — a star rating and a recap of your decisions
 
-Numbers and choices are illustrative — the goal is to communicate the game loop and UX for the design review, not final game balancing.
+### 2. Lab planner (what-if)
+
+The decision-support view. Sliders for cases booked, procedure rooms, physicians, nurses, technologists, and recovery beds, with live outputs (cases done, wait, staff strain, safety, overtime, cost per case). A two-stage bottleneck model — the procedure side is limited by `min(rooms, physicians, nurses, techs)`, the recovery side by beds, and throughput is the tighter of the two — flags the binding constraint and recommends the single change that adds the most throughput (or the resource you can trim without losing output).
+
+Numbers and choices are illustrative — the goal is to communicate the concept, UX, and the "ripple" idea for the design review, not final game balancing.
 
 ## Status
 
