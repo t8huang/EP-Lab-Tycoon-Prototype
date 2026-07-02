@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="ept">
-<h2 class="ept-sr">Interactive prototype of EP Lab Tycoon: start a shift, then make operational decisions across a randomized set of events in an electrophysiology lab and watch throughput, patient wait, staff strain, safety, and cost change, ending in a shift report with a star rating.</h2>
+<h2 class="ept-sr">Interactive prototype of EP Lab Tycoon: tune the lab in a what-if planner, then play a shift with those settings, making operational decisions across randomized events and watching throughput, wait, staff strain, safety, and cost change, ending in a shift report with a star rating.</h2>
 <style>
   :root{
     --ep-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -59,7 +59,7 @@
   .ept-cell .cv{font-size:14px;font-weight:500;margin-top:3px;display:flex;align-items:center;gap:6px}
   .dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--ep-text3)}
   .dot.on{background:var(--ep-good)} .dot.busy{background:var(--ep-warn)} .dot.off{background:var(--ep-line2)} .dot.alert{background:var(--ep-bad)}
-  .beds{display:flex;gap:5px;margin-top:4px}
+  .beds{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
   .bed{width:20px;height:14px;border:0.5px solid var(--ep-line2);border-radius:3px;background:var(--ep-card)}
   .bed.full{background:var(--ep-warn-bg);border-color:var(--ep-warn)}
   .ept-scene{padding:16px 18px 18px}
@@ -102,6 +102,7 @@
   .lt i{font-size:18px;color:var(--ep-accent)}
   .lt .lv{font-size:19px;font-weight:500;margin-top:4px;line-height:1.1}
   .lt .ll{font-size:11.5px;color:var(--ep-text3);margin-top:2px}
+  .cover-note{font-size:12px;color:var(--ep-text3);margin:0 0 16px}
   .recap{margin:2px 0 0;padding:0;list-style:none;font-size:13.5px}
   .recap li{display:flex;gap:8px;padding:7px 0;border-top:0.5px solid var(--ep-line);color:var(--ep-text2)}
   .recap li:first-child{border-top:0}
@@ -146,19 +147,19 @@
 
 <script>
 (function(){
-  var PLANNED=8;
+  var CONFIG={cases:8,rooms:2,phys:2,nurses:3,techs:2,beds:4};
+  var PLANNED=CONFIG.cases;
   var TIMES=['7:10 AM','9:20 AM','11:45 AM','2:30 PM'];
-  var S, seq, step, phase, last;
+  var S, seq, step, phase, last, caseScale;
 
-  var INTRO={tag:'Staffing', icon:'ti-users', title:'Open the day', board:{l1:'off',l2:'off',beds:0},
-    narr:'The board shows 8 catheter ablations booked across 2 EP labs, with 4 recovery beds, 3 nurses, 2 techs and 2 electrophysiologists. How do you start the shift?',
+  var INTRO={tag:'Staffing', icon:'ti-users', title:'Open the day', board:{l1:'off',l2:'off',beds:0}, narr:'',
     choices:[
       {ci:'A',ct:'Run both labs at full pace',ch:'Clear the backlog fast — but no slack if something breaks.',
        r:function(){return {t:'Both labs, full pace. The board fills fast, and so does the pressure on the team.',d:{cases:2,strain:12,safety:-2,cost:200}};}},
-      {ci:'B',ct:'Both labs, hold one nurse as a float',ch:'A little less throughput now, a safety net for later.',
+      {ci:'B',ct:'Hold one nurse as a float',ch:'A little less throughput now, a safety net for later.',
        r:function(){return {t:'You keep a nurse in reserve. It costs some capacity now — but buys resilience.',d:{cases:2,strain:6,safety:0,cost:500},flag:'float'};}},
-      {ci:'C',ct:'Open one lab, staff it heavily',ch:'Calm and safe, but the waitlist barely moves.',
-       r:function(){return {t:'One lab, well-staffed. Calm and safe — but today the waitlist barely moves.',d:{cases:1,strain:-3,safety:3,cost:100},flag:'oneLab'};}}
+      {ci:'C',ct:'Run lean and steady',ch:'Calm and safe, but the waitlist barely moves.',
+       r:function(){return {t:'You keep the pace deliberate and safe — but today the waitlist barely moves.',d:{cases:1,strain:-3,safety:3,cost:100},flag:'oneLab'};}}
     ]};
 
   var EVENTS=[
@@ -173,7 +174,7 @@
         r:function(){return {t:'You hold the schedule, but by noon the team is frayed and cutting corners.',d:{cases:2,strain:18,safety:-10,cost:200}};}}
      ]},
     {tag:'Bed crunch', icon:'ti-bed', title:'Recovery gridlock', board:{l1:'on',l2:'busy',beds:4},
-     narr:'Case 4 ran 40 minutes long. All 4 recovery beds are occupied and the next patient is prepped with nowhere to go.',
+     narr:'A case ran 40 minutes long. Every recovery bed is occupied and the next patient is prepped with nowhere to go.',
      choices:[
        {ci:'A',ct:'Hold the next case in prep',ch:'Safe, but the whole schedule slips.',
         r:function(){return {t:'You pause the line. Nothing goes wrong — but the day is now running behind.',d:{cases:1,wait:20,strain:2,safety:2,cost:100}};}},
@@ -183,7 +184,7 @@
         r:function(){return {t:'You move a patient out early. The line keeps flowing, but that discharge felt rushed.',d:{cases:2,wait:-5,safety:-9,strain:3}};}}
      ]},
     {tag:'Emergency', icon:'ti-alert-triangle', title:'Emergency add-on', board:{l1:'on',l2:'alert',beds:3},
-     narr:'An urgent inpatient ablation is added to the day. At the same moment, Lab 2’s mapping system needs a 20-minute reboot.',
+     narr:'An urgent inpatient ablation is added to the day. At the same moment, a mapping system needs a 20-minute reboot.',
      choices:[
        {ci:'A',ct:'Bump an elective, take the emergency now',ch:'Clinically right — an elective waits another day.',
         r:function(){return {t:'You bump one elective and take the urgent case. The right call — but another patient is rebooked.',d:{cases:2,safety:6,wait:15,cost:700},flag:'bumped'};}},
@@ -193,11 +194,11 @@
         r:function(){return {t:'Your day stays clean, but you handed off a sick patient to another team.',d:{cases:2,safety:-4,strain:-2,cost:200}};}}
      ]},
     {tag:'Equipment', icon:'ti-bolt', title:'Mapping system fault', board:{l1:'alert',l2:'on',beds:2},
-     narr:'Lab 1’s 3D mapping system throws an error mid-case. The team can continue on backup imaging, but it is slower and less precise.',
+     narr:'A 3D mapping system throws an error mid-case. The team can continue on backup imaging, but it is slower and less precise.',
      choices:[
        {ci:'A',ct:'Continue on backup imaging',ch:'Slower and careful — safe hands.',
         r:function(){return {t:'You finish on backup imaging — slower, but steady and safe.',d:{cases:1,wait:15,strain:4,safety:1,cost:200}};}},
-       {ci:'B',ct:'Move the case to Lab 2',ch:'Keeps the list moving — a tighter day.',
+       {ci:'B',ct:'Move the case to another lab',ch:'Keeps the list moving — a tighter day.',
         r:function(){return {t:'You shuffle rooms and keep the list moving, though the day gets tighter.',d:{cases:2,strain:8,wait:5,cost:300}};}},
        {ci:'C',ct:'Pause and call biomed',ch:'Wait for the fix — the schedule slips.',
         r:function(){return {t:'Biomed has it back in 30 minutes. Safe, but the schedule takes the hit.',d:{cases:1,wait:25,strain:-2,safety:2,cost:100}};}}
@@ -212,7 +213,7 @@
        {ci:'C',ct:'Substitute an alternative device',ch:'Keeps moving — not the team’s first choice.',
         r:function(){return {t:'You switch to a substitute catheter. It works, but it is not what the team prefers.',d:{cases:2,safety:-7,cost:150}};}}
      ]},
-    {tag:'Staffing', icon:'ti-user-minus', title:'A tech needs to leave', board:{l1:'on',l2:'on',beds:3},
+    {tag:'Staff gap', icon:'ti-user-minus', title:'A tech needs to leave', board:{l1:'on',l2:'on',beds:3},
      narr:'One of your technologists gets a call — a family emergency. They ask to leave after the current case.',
      choices:[
        {ci:'A',ct:'Let them go, cover the gap',ch:'The right thing — the team absorbs it.',
@@ -243,11 +244,19 @@
 
   function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
   function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
-  function newGame(){ S={cases:0,wait:25,strain:20,safety:95,cost:0,flags:{},log:[]}; seq=[INTRO].concat(shuffle(EVENTS).slice(0,3)); step=-1; phase='cover'; last=null; }
+
+  function newGame(){
+    PLANNED=CONFIG.cases; caseScale=CONFIG.cases/8;
+    var r=simCore(CONFIG), gap=CONFIG.cases-r.capacity, g=clamp(gap/8,-1.5,1.5);
+    S={cases:0, wait:clamp(Math.round(25+15*Math.max(0,g)),8,55), strain:clamp(Math.round(20+20*g),8,60), safety:clamp(Math.round(95-8*Math.max(0,g)),70,98), cost:0, flags:{}, log:[]};
+    INTRO.narr='The board shows '+CONFIG.cases+' catheter ablations booked across '+CONFIG.rooms+' EP lab'+(CONFIG.rooms>1?'s':'')+', with '+CONFIG.beds+' recovery beds, '+CONFIG.nurses+' nurses, '+CONFIG.techs+' techs and '+CONFIG.phys+' electrophysiologist'+(CONFIG.phys>1?'s':'')+'. How do you start the shift?';
+    seq=[INTRO].concat(shuffle(EVENTS).slice(0,3));
+    step=-1; phase='cover'; last=null;
+  }
   function curTime(){ if(step<0) return '7:00 AM'; if(step>=seq.length) return '5:30 PM'; return TIMES[step]||'5:30 PM'; }
 
   function apply(d){
-    if(d.cases) S.cases=clamp(S.cases+d.cases,0,9);
+    if(d.cases) S.cases=clamp(S.cases+d.cases,0,PLANNED);
     if(d.wait) S.wait=clamp(S.wait+d.wait,5,120);
     if(d.strain) S.strain=clamp(S.strain+d.strain,0,100);
     if(d.safety) S.safety=clamp(S.safety+d.safety,0,100);
@@ -281,11 +290,11 @@
     el.style.display='flex';
     var b=seq[step].board; if(S.flags.oneLab && (b.l2==='on'||b.l2==='busy')) b={l1:b.l1,l2:'off',beds:b.beds};
     function labState(x){return x==='on'?'<span class="dot on"></span>running':x==='busy'?'<span class="dot busy"></span>overrun':x==='alert'?'<span class="dot alert"></span>reboot':'<span class="dot off"></span>idle';}
-    var beds=''; for(var i=0;i<4;i++){beds+='<span class="bed'+(i<b.beds?' full':'')+'"></span>';}
-    var waiting=clamp(PLANNED-S.cases,0,9);
-    el.innerHTML=
-      '<div class="ept-cell"><div class="cl"><i class="ti ti-door" aria-hidden="true"></i>EP Lab 1</div><div class="cv">'+labState(b.l1)+'</div></div>'+
-      '<div class="ept-cell"><div class="cl"><i class="ti ti-door" aria-hidden="true"></i>EP Lab 2</div><div class="cv">'+labState(b.l2)+'</div></div>'+
+    var labs=''; for(var L=0;L<CONFIG.rooms;L++){ var stt=L===0?b.l1:L===1?b.l2:'on'; labs+='<div class="ept-cell"><div class="cl"><i class="ti ti-door" aria-hidden="true"></i>EP Lab '+(L+1)+'</div><div class="cv">'+labState(stt)+'</div></div>'; }
+    var usedBeds=Math.min(b.beds,CONFIG.beds);
+    var beds=''; for(var i=0;i<CONFIG.beds;i++){beds+='<span class="bed'+(i<usedBeds?' full':'')+'"></span>';}
+    var waiting=clamp(PLANNED-S.cases,0,PLANNED);
+    el.innerHTML=labs+
       '<div class="ept-cell"><div class="cl"><i class="ti ti-bed" aria-hidden="true"></i>Recovery beds</div><div class="beds">'+beds+'</div></div>'+
       '<div class="ept-cell"><div class="cl"><i class="ti ti-users" aria-hidden="true"></i>Waiting</div><div class="cv">'+waiting+' patients</div></div>';
   }
@@ -323,15 +332,17 @@
     }
   }
   function choose(i){ var sc=seq[step]; var ch=sc.choices[i]; var res=ch.r();
-    apply(res.d); if(res.flag) S.flags[res.flag]=true;
+    var d=Object.assign({},res.d); if(d.cases) d.cases=Math.max(1,Math.round(d.cases*caseScale));
+    apply(d); if(res.flag) S.flags[res.flag]=true;
     S.log.push({tag:sc.tag,label:ch.ct});
-    last={t:res.t,d:res.d,choiceLabel:ch.ct};
+    last={t:res.t,d:d,choiceLabel:ch.ct};
     phase='outcome'; scene();
   }
   function next(){ if(step<seq.length-1){ step++; phase='choose'; last=null; } else { step=seq.length; last=null; } scene(); }
 
   function cover(){
     document.getElementById('board').style.display='none';
+    var staff=CONFIG.nurses+CONFIG.techs+CONFIG.phys;
     return '<div class="cover">'+
       '<div class="cover-hero">'+
         '<span class="cover-emblem" aria-hidden="true"><i class="ti ti-heartbeat"></i></span>'+
@@ -341,11 +352,12 @@
       '</div>'+
       '<div class="brief-label">Today’s board</div>'+
       '<div class="loadout">'+
-        '<div class="lt"><i class="ti ti-stethoscope" aria-hidden="true"></i><div class="lv">8</div><div class="ll">ablations booked</div></div>'+
-        '<div class="lt"><i class="ti ti-door" aria-hidden="true"></i><div class="lv">2</div><div class="ll">EP labs</div></div>'+
-        '<div class="lt"><i class="ti ti-bed" aria-hidden="true"></i><div class="lv">4</div><div class="ll">recovery beds</div></div>'+
-        '<div class="lt"><i class="ti ti-users" aria-hidden="true"></i><div class="lv">7</div><div class="ll">3 nurses · 2 techs · 2 EPs</div></div>'+
+        '<div class="lt"><i class="ti ti-stethoscope" aria-hidden="true"></i><div class="lv">'+CONFIG.cases+'</div><div class="ll">ablations booked</div></div>'+
+        '<div class="lt"><i class="ti ti-door" aria-hidden="true"></i><div class="lv">'+CONFIG.rooms+'</div><div class="ll">EP lab'+(CONFIG.rooms>1?'s':'')+'</div></div>'+
+        '<div class="lt"><i class="ti ti-bed" aria-hidden="true"></i><div class="lv">'+CONFIG.beds+'</div><div class="ll">recovery beds</div></div>'+
+        '<div class="lt"><i class="ti ti-users" aria-hidden="true"></i><div class="lv">'+staff+'</div><div class="ll">'+CONFIG.nurses+' nurses · '+CONFIG.techs+' techs · '+CONFIG.phys+' EPs</div></div>'+
       '</div>'+
+      '<p class="cover-note">Set the lab up in the planner to change these — your settings carry into the shift.</p>'+
       '<div class="ept-act" style="justify-content:center;flex-wrap:wrap"><button class="btn primary btn-big" id="start"><i class="ti ti-player-play" aria-hidden="true"></i> Start the shift</button>'+
       '<button class="btn btn-big" id="planner"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Lab planner</button></div>'+
     '</div>';
@@ -353,7 +365,7 @@
 
   function report(){
     document.getElementById('board').style.display='none';
-    var through=clamp(S.cases/PLANNED,0,1);
+    var through=clamp(S.cases/Math.max(1,PLANNED),0,1);
     var score=0.40*(S.safety/100)+0.30*through+0.20*(1-S.strain/100)+0.10*(1-clamp(S.cost/6000,0,1));
     var stars=score>=0.85?5:score>=0.83?4:score>=0.805?3:score>=0.775?2:1;
     var verd=['The lab buckled. Time to rethink the plan.','Rough day — safety and morale took real hits.','A workable day. Some patients or staff felt the strain.','Strong shift. A few tradeoffs, but the lab held together.','Outstanding shift — high throughput, safe, and sustainable.'][stars-1];
@@ -364,15 +376,15 @@
       hud+='<div class="ept-metric"><div class="k"><i class="ti '+(META[r[0]]?META[r[0]].icon:'ti-currency-dollar')+'" aria-hidden="true"></i>'+r[1]+'</div><div class="v '+c+'" style="font-size:20px">'+r[2]+'</div></div>';
     });
     var rec=''; S.log.forEach(function(l){rec+='<li><b>'+l.tag+':</b> '+l.label+'</li>';});
-    var notes=[]; if(S.flags.cancelled) notes.push('cases rebooked'); if(S.flags.bumped) notes.push('an elective bumped'); if(S.flags.oneLab) notes.push('ran a single lab');
+    var notes=[]; if(S.flags.cancelled) notes.push('cases rebooked'); if(S.flags.bumped) notes.push('an elective bumped'); if(S.flags.oneLab) notes.push('ran lean');
     return '<div class="ept-time"><i class="ti ti-clipboard-check" aria-hidden="true"></i>5:30 PM &middot; End of shift</div>'+
       '<div class="ept-h">Shift report</div>'+
       '<div class="stars">'+st+'</div><p class="verdict">'+verd+'</p>'+
       '<div class="ept-hud" style="padding:0 0 6px">'+hud+'</div>'+
       (notes.length?'<p class="ept-narr" style="margin:8px 0 4px"><i class="ti ti-info-circle" aria-hidden="true" style="color:var(--ep-text3)"></i> Carried into the waitlist: '+notes.join(', ')+'.</p>':'')+
       '<div class="ept-h" style="font-size:15px;margin:16px 0 4px">Your decisions today</div><ul class="recap">'+rec+'</ul>'+
-      '<div class="whatif"><i class="ti ti-bulb" aria-hidden="true"></i><div><b>Decision-support view (full game):</b> replay this exact day against a change — add a 5th recovery bed, stagger start times, or add a float nurse — and compare the ripple side by side before you commit a real one.</div></div>'+
-      '<div class="ept-act" style="justify-content:center;margin-top:16px"><button class="btn" id="again"><i class="ti ti-refresh" aria-hidden="true"></i> Play a new shift</button></div>';
+      '<div class="whatif"><i class="ti ti-bulb" aria-hidden="true"></i><div><b>Try a different lab:</b> open the Lab planner to change staffing, rooms, or beds — your settings carry into the next shift, so you can watch the day play out under a new setup.</div></div>'+
+      '<div class="ept-act" style="justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn" id="again"><i class="ti ti-refresh" aria-hidden="true"></i> Play a new shift</button><button class="btn" id="planner"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Lab planner</button></div>';
   }
 
   function simCore(inp){
@@ -390,7 +402,7 @@
     var cpc=done>0?Math.round(cost/done):cost;
     var safety=Math.round(clamp(100-0.35*Math.max(0,strain-55)-3.2*otH-((recovCap<procCap&&backlog>0)?8:0),45,100));
     var bn; if(recovCap<procCap){bn='Recovery beds';} else {var arr=[['Procedure rooms',inp.rooms],['Physicians',inp.phys],['Nurses',inp.nurses],['Technologists',inp.techs]].sort(function(a,b){return a[1]-b[1];});bn=arr[0][0];}
-    return {done:done,backlog:backlog,wait:wait,strain:strain,otH:otH,cpc:cpc,cost:cost,safety:safety,bottleneck:bn};
+    return {done:done,backlog:backlog,capacity:capacity,wait:wait,strain:strain,otH:otH,cpc:cpc,cost:cost,safety:safety,bottleneck:bn};
   }
   function reco(inp){
     var base=simCore(inp);
@@ -398,7 +410,7 @@
       var keys=[['rooms','a procedure room'],['phys','a physician'],['nurses','a nurse'],['techs','a technologist'],['beds','a recovery bed']],best=null,bg=0;
       keys.forEach(function(kv){var i2=Object.assign({},inp);i2[kv[0]]=inp[kv[0]]+1;var g=simCore(i2).done-base.done;if(g>bg){bg=g;best=kv;}});
       if(best) return '<b>Add '+best[1]+'</b> → +'+bg+' case'+(bg>1?'s':'')+' cleared a day. Adding anything else won’t move throughput until you fix the '+base.bottleneck.toLowerCase()+'.';
-      return '<b>'+base.backlog+' case'+(base.backlog>1?'s':'')+' won’t fit.</b> The '+base.bottleneck.toLowerCase()+' caps the day — one extra resource won’t clear it; you’d need to add several together.';
+      return '<b>'+base.backlog+' case'+(base.backlog>1?'s':'')+' won’t fit.</b> The '+base.bottleneck.toLowerCase()+' cap the day — one extra resource won’t clear it; you’d need to add several together.';
     }
     var keys2=[['beds','a recovery bed',140],['techs','a technologist',560],['rooms','a procedure room',900],['phys','a physician',1100],['nurses','a nurse',520]],minv={rooms:1,phys:1,nurses:1,techs:1,beds:1},trim=null;
     keys2.forEach(function(kv){if(trim)return;if(inp[kv[0]]>minv[kv[0]]){var i2=Object.assign({},inp);i2[kv[0]]=inp[kv[0]]-1;if(simCore(i2).done===base.done)trim=kv;}});
@@ -409,19 +421,20 @@
     var st=document.querySelector('.ept-status'); if(st)st.style.display='none';
     document.getElementById('hud').style.display='none';
     document.getElementById('board').style.display='none';
-    var cfg=[['cases','Cases booked','ti-calendar',4,16,8],['rooms','Procedure rooms','ti-door',1,4,2],['phys','Physicians','ti-user',1,4,2],['nurses','Nurses','ti-users',1,8,3],['techs','Technologists','ti-tool',1,6,2],['beds','Recovery beds','ti-bed',1,8,4]];
+    var cfg=[['cases','Cases booked','ti-calendar',4,16,CONFIG.cases],['rooms','Procedure rooms','ti-door',1,4,CONFIG.rooms],['phys','Physicians','ti-user',1,4,CONFIG.phys],['nurses','Nurses','ti-users',1,8,CONFIG.nurses],['techs','Technologists','ti-tool',1,6,CONFIG.techs],['beds','Recovery beds','ti-bed',1,8,CONFIG.beds]];
     var inputs=''; cfg.forEach(function(c){ inputs+='<div class="pl-row"><div class="pl-lab"><i class="ti '+c[2]+'" aria-hidden="true"></i>'+c[1]+'</div><input type="range" id="in-'+c[0]+'" min="'+c[3]+'" max="'+c[4]+'" step="1" value="'+c[5]+'"><span class="pl-val" id="v-'+c[0]+'">'+c[5]+'</span></div>'; });
     document.getElementById('scene').innerHTML=
       '<div class="pl-head"><div><div class="ept-time"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>What-if mode</div><div class="ept-h">Lab planner</div></div><button class="btn" id="back"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</button></div>'+
-      '<p class="ept-narr">Adjust the lab’s resources and the day’s demand — everything updates live. See what actually moves the needle before you change anything real.</p>'+
+      '<p class="ept-narr">Adjust the lab’s resources and the day’s demand — everything updates live, and your setup carries into the shift you play.</p>'+
       '<div class="pl-grid"><div class="pl-inputs"><div class="brief-label">Inputs</div>'+inputs+'</div>'+
-      '<div class="pl-outputs"><div class="brief-label">Projected day</div><div class="pl-kpis" id="pl-kpis"></div><div id="pl-bottleneck"></div><div class="whatif"><i class="ti ti-bulb" aria-hidden="true"></i><div id="pl-insight"></div></div></div></div>';
+      '<div class="pl-outputs"><div class="brief-label">Projected day</div><div class="pl-kpis" id="pl-kpis"></div><div id="pl-bottleneck"></div><div class="whatif"><i class="ti ti-bulb" aria-hidden="true"></i><div id="pl-insight"></div></div></div></div>'+
+      '<div class="ept-act" style="justify-content:center;margin-top:18px"><button class="btn primary btn-big" id="playcfg"><i class="ti ti-player-play" aria-hidden="true"></i> Play this shift</button></div>';
     cfg.forEach(function(c){ document.getElementById('in-'+c[0]).addEventListener('input',updatePlanner); });
     updatePlanner();
   }
   function updatePlanner(){
     var ids=['cases','rooms','phys','nurses','techs','beds'], inp={};
-    ids.forEach(function(k){ var v=+document.getElementById('in-'+k).value; inp[k]=v; document.getElementById('v-'+k).textContent=v; });
+    ids.forEach(function(k){ var v=+document.getElementById('in-'+k).value; inp[k]=v; CONFIG[k]=v; document.getElementById('v-'+k).textContent=v; });
     var r=simCore(inp);
     function card(label,value,klass){ return '<div class="ept-metric"><div class="k">'+label+'</div><div class="v '+(klass||'')+'" style="font-size:20px">'+value+'</div></div>'; }
     document.getElementById('pl-kpis').innerHTML=
@@ -436,11 +449,13 @@
     else { bnEl.className='pl-bn ok'; bnEl.innerHTML='<i class="ti ti-circle-check" aria-hidden="true"></i><span>No bottleneck — all '+inp.cases+' cases served</span>'; }
     document.getElementById('pl-insight').innerHTML=reco(inp);
   }
+
   function boot(){ newGame(); scene();
     document.getElementById('scene').addEventListener('click',function(e){
       if(e.target.closest('#start')){ step=0; phase='choose'; last=null; scene(); }
       if(e.target.closest('#again')){ newGame(); scene(); }
       if(e.target.closest('#planner')){ openPlanner(); }
+      if(e.target.closest('#playcfg')){ var s2=document.querySelector('.ept-status'); if(s2)s2.style.display=''; document.getElementById('hud').style.display=''; newGame(); step=0; phase='choose'; last=null; scene(); }
       if(e.target.closest('#back')){ var st=document.querySelector('.ept-status'); if(st)st.style.display=''; document.getElementById('hud').style.display=''; newGame(); scene(); }
     });
   }
