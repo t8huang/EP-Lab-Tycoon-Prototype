@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EP Lab Tycoon — playable storyboard prototype</title>
+<title>EP Lab Tycoon</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
 <style>
   html,body{margin:0}
@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="ept">
-<h2 class="ept-sr">Interactive low-fidelity prototype of EP Lab Tycoon: choose staffing and operational decisions across a day in an electrophysiology lab and watch throughput, patient wait, staff strain, safety, and cost change, ending in a shift report.</h2>
+<h2 class="ept-sr">Interactive prototype of EP Lab Tycoon: start a shift, then make operational decisions across a randomized set of events in an electrophysiology lab and watch throughput, patient wait, staff strain, safety, and cost change, ending in a shift report with a star rating.</h2>
 <style>
   :root{
     --ep-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -43,7 +43,6 @@
   .ept-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:0.5px solid var(--ep-line);background:var(--ep-soft);flex-wrap:wrap}
   .ept-brand{display:flex;align-items:center;gap:10px;font-weight:500;font-size:17px}
   .ept-logo{width:30px;height:30px;border-radius:8px;background:var(--ep-accent-bg);color:var(--ep-accent);display:flex;align-items:center;justify-content:center;font-size:18px}
-  .ept-badge{font-size:11px;font-weight:500;letter-spacing:.02em;color:var(--ep-text3);border:0.5px dashed var(--ep-line2);border-radius:999px;padding:2px 9px;text-transform:lowercase}
   .ept-status{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--ep-text2)}
   .ept-status b{font-weight:500;color:var(--ep-text)}
   .ept-status i{font-size:15px;vertical-align:-2px;margin-right:4px;color:var(--ep-text3)}
@@ -63,7 +62,7 @@
   .beds{display:flex;gap:5px;margin-top:4px}
   .bed{width:20px;height:14px;border:0.5px solid var(--ep-line2);border-radius:3px;background:var(--ep-card)}
   .bed.full{background:var(--ep-warn-bg);border-color:var(--ep-warn)}
-  .ept-scene{padding:16px 18px 6px}
+  .ept-scene{padding:16px 18px 18px}
   .ept-time{font-size:12px;font-weight:500;letter-spacing:.03em;text-transform:uppercase;color:var(--ep-accent);display:flex;align-items:center;gap:7px}
   .ept-h{font-size:20px;font-weight:500;margin:6px 0 8px}
   .ept-narr{font-size:15px;color:var(--ep-text2);margin:0 0 14px}
@@ -88,21 +87,21 @@
   @media (prefers-color-scheme:dark){.btn.primary{color:#04241c}}
   .btn.primary:hover{filter:brightness(1.05)}
   .btn i{font-size:16px}
-  .ept-film{display:flex;gap:6px;padding:14px 18px 18px;overflow-x:auto}
-  .frame{flex:1;min-width:78px;border:0.5px solid var(--ep-line);border-radius:9px;padding:8px 6px;text-align:center;background:var(--ep-soft);opacity:.55}
-  .frame.done{opacity:1} .frame.cur{opacity:1;border-color:var(--ep-accent);background:var(--ep-accent-bg)}
-  .frame .fn{font-size:11px;color:var(--ep-text3)}
-  .frame .fi{font-size:18px;color:var(--ep-text2);margin:2px 0}
-  .frame.cur .fi,.frame.cur .fl{color:var(--ep-accent)}
-  .frame.done .fi{color:var(--ep-good)}
-  .frame .fl{font-size:11.5px;font-weight:500;color:var(--ep-text);line-height:1.25}
-  .cover{padding:22px 18px 8px;text-align:center}
-  .cover .cbig{width:56px;height:56px;border-radius:14px;background:var(--ep-accent-bg);color:var(--ep-accent);display:inline-flex;align-items:center;justify-content:center;font-size:30px}
-  .cover h1{font-size:26px;font-weight:500;margin:12px 0 4px}
-  .cover .sub{font-size:15px;color:var(--ep-text2);max-width:520px;margin:0 auto 14px}
-  .cover .setup{display:inline-flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px}
-  .pill{font-size:13px;color:var(--ep-text2);background:var(--ep-soft);border:0.5px solid var(--ep-line);border-radius:999px;padding:5px 12px;display:inline-flex;align-items:center;gap:6px}
-  .pill i{font-size:15px;color:var(--ep-text3)}
+  .btn-big{font-size:16px;padding:12px 26px;border-radius:12px}
+  .cover{padding:18px 16px 8px;text-align:center}
+  .cover-hero{background:var(--ep-accent-bg);border:0.5px solid var(--ep-line);border-radius:16px;padding:24px 18px 20px;margin-bottom:18px}
+  .cover-emblem{width:62px;height:62px;border-radius:16px;background:var(--ep-accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:33px}
+  @media (prefers-color-scheme:dark){.cover-emblem{color:#04241c}}
+  .cover-title{font-size:30px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin:12px 0 5px}
+  .cover-title .t2{color:var(--ep-accent)}
+  .cover-tag{font-size:15px;color:var(--ep-text2);margin:0 auto;max-width:430px}
+  .ecg{display:block;width:230px;height:26px;margin:15px auto 0}
+  .brief-label{font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ep-text3);margin:0 0 9px;text-align:left}
+  .loadout{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:0 0 20px}
+  .lt{background:var(--ep-soft);border:0.5px solid var(--ep-line);border-radius:12px;padding:11px 13px;text-align:left}
+  .lt i{font-size:18px;color:var(--ep-accent)}
+  .lt .lv{font-size:19px;font-weight:500;margin-top:4px;line-height:1.1}
+  .lt .ll{font-size:11.5px;color:var(--ep-text3);margin-top:2px}
   .recap{margin:2px 0 0;padding:0;list-style:none;font-size:13.5px}
   .recap li{display:flex;gap:8px;padding:7px 0;border-top:0.5px solid var(--ep-line);color:var(--ep-text2)}
   .recap li:first-child{border-top:0}
@@ -113,7 +112,6 @@
   .whatif{background:var(--ep-blue-bg);border:0.5px solid var(--ep-line);border-radius:12px;padding:12px 14px;font-size:13.5px;color:var(--ep-text2);display:flex;gap:10px;align-items:flex-start;margin-top:14px}
   .whatif i{font-size:18px;color:var(--ep-blue);flex:none;margin-top:1px}
   .whatif b{color:var(--ep-text);font-weight:500}
-  .ept-foot{font-size:11.5px;color:var(--ep-text3);text-align:center;padding:0 18px 16px}
 </style>
 
 <div class="ept-frame">
@@ -121,59 +119,46 @@
     <div class="ept-brand">
       <span class="ept-logo" aria-hidden="true"><i class="ti ti-heartbeat"></i></span>
       EP Lab Tycoon
-      <span class="ept-badge">low-fi prototype</span>
     </div>
     <div class="ept-status">
       <span><i class="ti ti-clock" aria-hidden="true"></i><b id="s-time">7:00 AM</b></span>
       <span><i class="ti ti-currency-dollar" aria-hidden="true"></i>overtime <b id="s-cost">$0</b></span>
     </div>
   </div>
-
   <div class="ept-hud" id="hud"></div>
   <div class="ept-board" id="board"></div>
   <div class="ept-scene" id="scene"></div>
-  <div class="ept-film" id="film"></div>
-  <div class="ept-foot">A concept prototype for MSE 401 — choices and numbers are illustrative, to show the game loop.</div>
 </div>
 
 <script>
 (function(){
   var PLANNED=8;
-  var S, idx, phase, last;
+  var TIMES=['7:10 AM','9:20 AM','11:45 AM','2:30 PM'];
+  var S, seq, step, phase, last;
 
-  function init(){ S={cases:0,wait:25,strain:20,safety:95,cost:0,flags:{},log:[]}; idx=0; phase='choose'; last=null; }
-  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  var INTRO={tag:'Staffing', icon:'ti-users', title:'Open the day', board:{l1:'off',l2:'off',beds:0},
+    narr:'The board shows 8 catheter ablations booked across 2 EP labs, with 4 recovery beds, 3 nurses, 2 techs and 2 electrophysiologists. How do you start the shift?',
+    choices:[
+      {ci:'A',ct:'Run both labs at full pace',ch:'Clear the backlog fast — but no slack if something breaks.',
+       r:function(){return {t:'Both labs, full pace. The board fills fast, and so does the pressure on the team.',d:{cases:2,strain:12,safety:-2,cost:200}};}},
+      {ci:'B',ct:'Both labs, hold one nurse as a float',ch:'A little less throughput now, a safety net for later.',
+       r:function(){return {t:'You keep a nurse in reserve. It costs some capacity now — but buys resilience.',d:{cases:2,strain:6,safety:0,cost:500},flag:'float'};}},
+      {ci:'C',ct:'Open one lab, staff it heavily',ch:'Calm and safe, but the waitlist barely moves.',
+       r:function(){return {t:'One lab, well-staffed. Calm and safe — but today the waitlist barely moves.',d:{cases:1,strain:-3,safety:3,cost:100},flag:'oneLab'};}}
+    ]};
 
-  var flow=[
-    {type:'cover'},
-    {time:'7:10 AM', tag:'Staffing', ficon:'ti-users', film:'Open the day', icon:'ti-users',
-     board:{l1:'off',l2:'off',beds:0},
-     title:'Open the day',
-     narr:'The board shows 8 catheter ablations booked across 2 EP labs, with 4 recovery beds, 3 nurses, 2 techs and 2 electrophysiologists. How do you start the shift?',
-     choices:[
-       {ci:'A',ct:'Run both labs at full pace',ch:'Clear the backlog fast — but no slack if something breaks.',
-        r:function(){return {t:'Both labs, full pace. The board fills fast, and so does the pressure on the team.',d:{cases:2,strain:12,safety:-2,cost:200}};}},
-       {ci:'B',ct:'Both labs, hold one nurse as a float',ch:'A little less throughput now, a safety net for later.',
-        r:function(){return {t:'You keep a nurse in reserve. It costs some capacity now — but buys resilience.',d:{cases:2,strain:6,safety:0,cost:500},flag:'float'};}},
-       {ci:'C',ct:'Open one lab, staff it heavily',ch:'Calm and safe, but the waitlist barely moves.',
-        r:function(){return {t:'One lab, well-staffed. Calm and safe — but today the waitlist barely moves.',d:{cases:1,strain:-3,safety:3,cost:100},flag:'oneLab'};}}
-     ]},
-    {time:'9:20 AM', tag:'Sick call', ficon:'ti-user-off', film:'Nurse off sick', icon:'ti-user-exclamation',
-     board:{l1:'on',l2:'on',beds:2},
-     title:'A nurse calls in sick',
+  var EVENTS=[
+    {tag:'Sick call', icon:'ti-user-exclamation', title:'A nurse calls in sick', board:{l1:'on',l2:'on',beds:2},
      narr:'Recovery nurse Priya calls in — she is out for the day. You are suddenly a nurse short with a full afternoon ahead.',
      choices:[
        {ci:'A',ct:'Backfill from your reserve',ch:'Smooth if you kept a float — costly if you did not.',
-        r:function(){ if(S.flags.float) return {t:'Your float nurse slides straight into recovery. Barely a ripple in the day.',d:{cases:2,strain:6,safety:-1,cost:400}};
-                      return {t:'With no slack in the roster, you pull a nurse off procedures. Recovery runs thin and the team feels it.',d:{cases:2,strain:16,safety:-8,cost:600}};}},
+        r:function(){ return S.flags.float ? {t:'Your float nurse slides straight into recovery. Barely a ripple in the day.',d:{cases:2,strain:6,safety:-1,cost:400}} : {t:'With no slack in the roster, you pull a nurse off procedures. Recovery runs thin and the team feels it.',d:{cases:2,strain:16,safety:-8,cost:600}}; }},
        {ci:'B',ct:'Cancel two afternoon cases',ch:'Protects staff and safety — the backlog grows.',
         r:function(){return {t:'Two patients are rebooked. The team stays safe, but those cases roll into the waitlist.',d:{cases:1,strain:-4,safety:4,cost:300},flag:'cancelled'};}},
        {ci:'C',ct:'Push through short-staffed',ch:'Keep the pace — everyone pays for it.',
         r:function(){return {t:'You hold the schedule, but by noon the team is frayed and cutting corners.',d:{cases:2,strain:18,safety:-10,cost:200}};}}
      ]},
-    {time:'11:45 AM', tag:'Bed crunch', ficon:'ti-bed', film:'Recovery full', icon:'ti-bed',
-     board:{l1:'on',l2:'busy',beds:4},
-     title:'Recovery gridlock',
+    {tag:'Bed crunch', icon:'ti-bed', title:'Recovery gridlock', board:{l1:'on',l2:'busy',beds:4},
      narr:'Case 4 ran 40 minutes long. All 4 recovery beds are occupied and the next patient is prepped with nowhere to go.',
      choices:[
        {ci:'A',ct:'Hold the next case in prep',ch:'Safe, but the whole schedule slips.',
@@ -183,9 +168,7 @@
        {ci:'C',ct:'Discharge a patient early to free a bed',ch:'Keeps moving — a rushed call on safety.',
         r:function(){return {t:'You move a patient out early. The line keeps flowing, but that discharge felt rushed.',d:{cases:2,wait:-5,safety:-9,strain:3}};}}
      ]},
-    {time:'2:30 PM', tag:'Emergency', ficon:'ti-urgent', film:'Add-on case', icon:'ti-alert-triangle',
-     board:{l1:'on',l2:'alert',beds:3},
-     title:'Emergency add-on',
+    {tag:'Emergency', icon:'ti-alert-triangle', title:'Emergency add-on', board:{l1:'on',l2:'alert',beds:3},
      narr:'An urgent inpatient ablation is added to the day. At the same moment, Lab 2’s mapping system needs a 20-minute reboot.',
      choices:[
        {ci:'A',ct:'Bump an elective, take the emergency now',ch:'Clinically right — an elective waits another day.',
@@ -195,7 +178,46 @@
        {ci:'C',ct:'Divert the emergency to a partner site',ch:'Protects your day — a risky handoff.',
         r:function(){return {t:'Your day stays clean, but you handed off a sick patient to another team.',d:{cases:2,safety:-4,strain:-2,cost:200}};}}
      ]},
-    {type:'report', time:'5:30 PM', tag:'Wrap-up', ficon:'ti-clipboard-check', film:'Shift report'}
+    {tag:'Equipment', icon:'ti-bolt', title:'Mapping system fault', board:{l1:'alert',l2:'on',beds:2},
+     narr:'Lab 1’s 3D mapping system throws an error mid-case. The team can continue on backup imaging, but it is slower and less precise.',
+     choices:[
+       {ci:'A',ct:'Continue on backup imaging',ch:'Slower and careful — safe hands.',
+        r:function(){return {t:'You finish on backup imaging — slower, but steady and safe.',d:{cases:1,wait:15,strain:4,safety:1,cost:200}};}},
+       {ci:'B',ct:'Move the case to Lab 2',ch:'Keeps the list moving — a tighter day.',
+        r:function(){return {t:'You shuffle rooms and keep the list moving, though the day gets tighter.',d:{cases:2,strain:8,wait:5,cost:300}};}},
+       {ci:'C',ct:'Pause and call biomed',ch:'Wait for the fix — the schedule slips.',
+        r:function(){return {t:'Biomed has it back in 30 minutes. Safe, but the schedule takes the hit.',d:{cases:1,wait:25,strain:-2,safety:2,cost:100}};}}
+     ]},
+    {tag:'Supply', icon:'ti-package', title:'Running low on catheters', board:{l1:'on',l2:'on',beds:2},
+     narr:'Stores flags that the specialty ablation catheters are nearly out — enough for maybe two more cases before a resupply arrives this afternoon.',
+     choices:[
+       {ci:'A',ct:'Ration to the sickest patients first',ch:'Protects safety — defers electives.',
+        r:function(){return {t:'You protect the highest-acuity cases and defer the rest to the resupply.',d:{cases:1,safety:4,wait:10,cost:100},flag:'cancelled'};}},
+       {ci:'B',ct:'Borrow stock from another site',ch:'Keeps flow — a courier bill.',
+        r:function(){return {t:'A courier brings extra stock across town. Flow holds, but it is not cheap.',d:{cases:2,strain:3,cost:800}};}},
+       {ci:'C',ct:'Substitute an alternative device',ch:'Keeps moving — not the team’s first choice.',
+        r:function(){return {t:'You switch to a substitute catheter. It works, but it is not what the team prefers.',d:{cases:2,safety:-7,cost:150}};}}
+     ]},
+    {tag:'Staffing', icon:'ti-user-minus', title:'A tech needs to leave', board:{l1:'on',l2:'on',beds:3},
+     narr:'One of your technologists gets a call — a family emergency. They ask to leave after the current case.',
+     choices:[
+       {ci:'A',ct:'Let them go, cover the gap',ch:'The right thing — the team absorbs it.',
+        r:function(){return {t:'You send them home and redistribute the work. The remaining team absorbs the load.',d:{cases:1,strain:12,safety:-2,cost:200}};}},
+       {ci:'B',ct:'Ask them to stay one more case',ch:'One more case — some goodwill spent.',
+        r:function(){return {t:'They agree to one more case, then leave. You gain a case but spend some goodwill.',d:{cases:2,strain:8,safety:-1,cost:300}};}},
+       {ci:'C',ct:'Close the afternoon list early',ch:'Everyone rests — cases roll over.',
+        r:function(){return {t:'You wind down early. Everyone is safe and rested, but cases roll to another day.',d:{cases:1,strain:-4,safety:3,wait:10,cost:100},flag:'cancelled'};}}
+     ]},
+    {tag:'Add-on', icon:'ti-user-plus', title:'A “quick” add-on', board:{l1:'on',l2:'on',beds:2},
+     narr:'A staff cardiologist catches you in the hall and pushes to squeeze in a “quick” case for their patient today.',
+     choices:[
+       {ci:'A',ct:'Fit it in',ch:'Say yes — the list and the pressure grow.',
+        r:function(){return {t:'You make room. The list grows and so does the pressure.',d:{cases:2,strain:10,wait:10,cost:300}};}},
+       {ci:'B',ct:'Hold the line, offer tomorrow',ch:'Protect today’s plan.',
+        r:function(){return {t:'You keep today’s plan intact and book them first thing tomorrow.',d:{cases:1,safety:2,strain:-2}};}},
+       {ci:'C',ct:'Triage — only if urgent',ch:'Make the call on clinical need.',
+        r:function(){return {t:'You triage it properly; it can safely wait, so it does.',d:{cases:1,safety:3,wait:5,cost:100}};}}
+     ]}
   ];
 
   var META={
@@ -205,6 +227,11 @@
     safety:{label:'Patient safety',icon:'ti-heart',unit:'%',better:'up'}
   };
 
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  function newGame(){ S={cases:0,wait:25,strain:20,safety:95,cost:0,flags:{},log:[]}; seq=[INTRO].concat(shuffle(EVENTS).slice(0,3)); step=-1; phase='cover'; last=null; }
+  function curTime(){ if(step<0) return '7:00 AM'; if(step>=seq.length) return '5:30 PM'; return TIMES[step]||'5:30 PM'; }
+
   function apply(d){
     if(d.cases) S.cases=clamp(S.cases+d.cases,0,9);
     if(d.wait) S.wait=clamp(S.wait+d.wait,5,120);
@@ -213,18 +240,17 @@
     if(d.cost) S.cost=Math.max(0,S.cost+d.cost);
   }
   function money(n){return '$'+Math.round(n).toLocaleString();}
-
-  function cls(metric){
-    if(metric==='wait') return S.wait<=30?'good':S.wait<=45?'warn':'bad';
-    if(metric==='strain') return S.strain<=40?'good':S.strain<=65?'warn':'bad';
-    if(metric==='safety') return S.safety>=85?'good':S.safety>=70?'warn':'bad';
+  function cls(m){
+    if(m==='wait') return S.wait<=30?'good':S.wait<=45?'warn':'bad';
+    if(m==='strain') return S.strain<=40?'good':S.strain<=65?'warn':'bad';
+    if(m==='safety') return S.safety>=85?'good':S.safety>=70?'warn':'bad';
     return '';
   }
-  function val(metric){
-    if(metric==='cases') return S.cases+'<span class="u"> / '+PLANNED+'</span>';
-    if(metric==='wait') return Math.round(S.wait)+'<span class="u"> min</span>';
-    if(metric==='strain') return Math.round(S.strain)+'<span class="u"> %</span>';
-    if(metric==='safety') return Math.round(S.safety)+'<span class="u"> %</span>';
+  function val(m){
+    if(m==='cases') return S.cases+'<span class="u"> / '+PLANNED+'</span>';
+    if(m==='wait') return Math.round(S.wait)+'<span class="u"> min</span>';
+    if(m==='strain') return Math.round(S.strain)+'<span class="u"> %</span>';
+    if(m==='safety') return Math.round(S.safety)+'<span class="u"> %</span>';
   }
   function renderHUD(){
     var h='';
@@ -235,13 +261,11 @@
     document.getElementById('s-cost').textContent=money(S.cost);
     document.getElementById('s-time').textContent=curTime();
   }
-  function curTime(){var sc=flow[idx]; return sc&&sc.time?sc.time:'7:00 AM';}
-
   function renderBoard(){
-    var el=document.getElementById('board'); var sc=flow[idx];
-    if(!sc||sc.type==='cover'||sc.type==='report'){el.innerHTML='';el.style.display='none';return;}
+    var el=document.getElementById('board');
+    if(step<0||step>=seq.length){el.innerHTML='';el.style.display='none';return;}
     el.style.display='flex';
-    var b=sc.board; if(S.flags.oneLab && (b.l2==='on'||b.l2==='busy')) b={l1:b.l1,l2:'off',beds:b.beds};
+    var b=seq[step].board; if(S.flags.oneLab && (b.l2==='on'||b.l2==='busy')) b={l1:b.l1,l2:'off',beds:b.beds};
     function labState(x){return x==='on'?'<span class="dot on"></span>running':x==='busy'?'<span class="dot busy"></span>overrun':x==='alert'?'<span class="dot alert"></span>reboot':'<span class="dot off"></span>idle';}
     var beds=''; for(var i=0;i<4;i++){beds+='<span class="bed'+(i<b.beds?' full':'')+'"></span>';}
     var waiting=clamp(PLANNED-S.cases,0,9);
@@ -251,81 +275,72 @@
       '<div class="ept-cell"><div class="cl"><i class="ti ti-bed" aria-hidden="true"></i>Recovery beds</div><div class="beds">'+beds+'</div></div>'+
       '<div class="ept-cell"><div class="cl"><i class="ti ti-users" aria-hidden="true"></i>Waiting</div><div class="cv">'+waiting+' patients</div></div>';
   }
-
-  function renderFilm(){
-    var el=document.getElementById('film'); var h='';
-    flow.forEach(function(sc,i){
-      if(sc.type==='cover') return;
-      var st=i<idx?'done':i===idx?'cur':'';
-      var ic=i<idx?'ti-check':sc.ficon;
-      h+='<div class="frame '+st+'"><div class="fn">'+(sc.type==='report'?'End':i)+'</div><div class="fi"><i class="ti '+ic+'" aria-hidden="true"></i></div><div class="fl">'+sc.film+'</div></div>';
-    });
-    el.innerHTML=h;
-  }
-
-  function chip(metric,v){
+  function chip(m,v){
     if(!v) return '';
-    var m=META[metric];
-    var better = m?m.better:'down';
+    var meta=META[m];
+    var better = meta?meta.better:'down';
     var improves = better==='up'? v>0 : v<0;
-    var unit = metric==='wait'?' min':(metric==='strain'||metric==='safety')?'%':'';
-    var disp = metric==='cost' ? (v>0?'+':'−')+money(Math.abs(v)) : (v>0?'+':'')+v+unit;
-    var label = metric==='cost'?'cost':m.label.toLowerCase();
+    var unit = m==='wait'?' min':(m==='strain'||m==='safety')?'%':'';
+    var disp = m==='cost' ? (v>0?'+':'−')+money(Math.abs(v)) : (v>0?'+':'')+v+unit;
+    var label = m==='cost'?'cost':meta.label.toLowerCase();
     var icon = v>0?'ti-arrow-up-right':'ti-arrow-down-right';
     return '<span class="chip '+(improves?'up':'down')+'"><i class="ti '+icon+'" aria-hidden="true"></i>'+label+' '+disp+'</span>';
   }
 
-  function scene(){ var sc=flow[idx];
-    renderHUD(); renderBoard(); renderFilm();
+  function scene(){
+    renderHUD(); renderBoard();
     var el=document.getElementById('scene');
-    if(sc.type==='cover'){ el.innerHTML=cover(); return; }
-    if(sc.type==='report'){ el.innerHTML=report(); return; }
+    if(step<0){ el.innerHTML=cover(); return; }
+    if(step>=seq.length){ el.innerHTML=report(); return; }
+    var sc=seq[step];
+    var head='<div class="ept-time"><i class="ti '+sc.icon+'" aria-hidden="true"></i>'+TIMES[step]+' &middot; '+sc.tag+'</div>';
     if(phase==='choose'){
       var c=''; sc.choices.forEach(function(ch,i){
         c+='<button class="ept-choice" data-i="'+i+'"><span class="ci">'+ch.ci+'</span><span><span class="ct">'+ch.ct+'</span><span class="ch">'+ch.ch+'</span></span></button>';
       });
-      el.innerHTML='<div class="ept-time"><i class="ti '+sc.icon+'" aria-hidden="true"></i>'+sc.time+' &middot; '+sc.tag+'</div>'+
-        '<div class="ept-h">'+sc.title+'</div><p class="ept-narr">'+sc.narr+'</p><div class="ept-choices">'+c+'</div>';
-      Array.prototype.forEach.call(el.querySelectorAll('.ept-choice'),function(b){b.onclick=function(){choose(+b.dataset.i);};});
+      el.innerHTML=head+'<div class="ept-h">'+sc.title+'</div><p class="ept-narr">'+sc.narr+'</p><div class="ept-choices">'+c+'</div>';
+      Array.prototype.forEach.call(el.querySelectorAll('.ept-choice'),function(btn){btn.onclick=function(){choose(+btn.dataset.i);};});
     } else {
       var chips=''; ['cases','wait','strain','safety'].forEach(function(m){chips+=chip(m,last.d[m]||0);}); chips+=chip('cost',last.d.cost||0);
-      el.innerHTML='<div class="ept-time"><i class="ti '+sc.icon+'" aria-hidden="true"></i>'+sc.time+' &middot; '+sc.tag+'</div>'+
-        '<div class="ept-h">'+last.choiceLabel+'</div>'+
+      el.innerHTML=head+'<div class="ept-h">'+last.choiceLabel+'</div>'+
         '<div class="ept-out"><div class="otag"><i class="ti ti-arrow-bounce" aria-hidden="true"></i>what happened</div><p class="otxt">'+last.t+'</p><div class="chips">'+chips+'</div></div>'+
-        '<div class="ept-act"><button class="btn primary" id="nx">'+(idx>=flow.length-2?'See shift report':'Continue')+' <i class="ti ti-arrow-right" aria-hidden="true"></i></button></div>';
+        '<div class="ept-act"><button class="btn primary" id="nx">'+(step>=seq.length-1?'See shift report':'Continue')+' <i class="ti ti-arrow-right" aria-hidden="true"></i></button></div>';
       document.getElementById('nx').onclick=next;
     }
   }
-
-  function choose(i){ var sc=flow[idx]; var ch=sc.choices[i]; var res=ch.r();
+  function choose(i){ var sc=seq[step]; var ch=sc.choices[i]; var res=ch.r();
     apply(res.d); if(res.flag) S.flags[res.flag]=true;
     S.log.push({tag:sc.tag,label:ch.ct});
     last={t:res.t,d:res.d,choiceLabel:ch.ct};
     phase='outcome'; scene();
   }
-  function next(){ idx++; phase='choose'; last=null; scene(); window.scrollTo&&window.scrollTo(0,0); }
+  function next(){ if(step<seq.length-1){ step++; phase='choose'; last=null; } else { step=seq.length; last=null; } scene(); }
 
   function cover(){
     document.getElementById('board').style.display='none';
     return '<div class="cover">'+
-      '<span class="cbig" aria-hidden="true"><i class="ti ti-heartbeat"></i></span>'+
-      '<h1>Run the lab. Beat the backlog. Keep patients safe.</h1>'+
-      '<p class="sub">Over 200,000 Canadians wait for cardiac ablation — usually more than a year. The bottleneck is not skill, it is operations. Step into the shift manager’s seat for one day and see how every decision ripples.</p>'+
-      '<div class="setup">'+
-        '<span class="pill"><i class="ti ti-stethoscope" aria-hidden="true"></i>8 ablations booked</span>'+
-        '<span class="pill"><i class="ti ti-door" aria-hidden="true"></i>2 EP labs</span>'+
-        '<span class="pill"><i class="ti ti-bed" aria-hidden="true"></i>4 recovery beds</span>'+
-        '<span class="pill"><i class="ti ti-users" aria-hidden="true"></i>3 nurses &middot; 2 techs &middot; 2 EPs</span>'+
+      '<div class="cover-hero">'+
+        '<span class="cover-emblem" aria-hidden="true"><i class="ti ti-heartbeat"></i></span>'+
+        '<div class="cover-title">EP Lab <span class="t2">Tycoon</span></div>'+
+        '<p class="cover-tag">Run the lab. Beat the backlog. Keep patients safe.</p>'+
+        '<svg class="ecg" viewBox="0 0 230 26" fill="none" stroke="var(--ep-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="0,13 72,13 84,13 92,4 102,22 112,13 150,13 160,8 170,18 180,13 230,13"/></svg>'+
       '</div>'+
-      '<div class="ept-act" style="justify-content:center"><button class="btn primary" id="start"><i class="ti ti-player-play" aria-hidden="true"></i> Start the shift</button></div>'+
-      '</div>';
+      '<div class="brief-label">Today’s board</div>'+
+      '<div class="loadout">'+
+        '<div class="lt"><i class="ti ti-stethoscope" aria-hidden="true"></i><div class="lv">8</div><div class="ll">ablations booked</div></div>'+
+        '<div class="lt"><i class="ti ti-door" aria-hidden="true"></i><div class="lv">2</div><div class="ll">EP labs</div></div>'+
+        '<div class="lt"><i class="ti ti-bed" aria-hidden="true"></i><div class="lv">4</div><div class="ll">recovery beds</div></div>'+
+        '<div class="lt"><i class="ti ti-users" aria-hidden="true"></i><div class="lv">7</div><div class="ll">3 nurses · 2 techs · 2 EPs</div></div>'+
+      '</div>'+
+      '<div class="ept-act" style="justify-content:center"><button class="btn primary btn-big" id="start"><i class="ti ti-player-play" aria-hidden="true"></i> Start the shift</button></div>'+
+    '</div>';
   }
 
   function report(){
     document.getElementById('board').style.display='none';
     var through=clamp(S.cases/PLANNED,0,1);
     var score=0.40*(S.safety/100)+0.30*through+0.20*(1-S.strain/100)+0.10*(1-clamp(S.cost/6000,0,1));
-    var stars=score>=0.85?5:score>=0.81?4:score>=0.78?3:score>=0.75?2:1;
+    var stars=score>=0.85?5:score>=0.83?4:score>=0.805?3:score>=0.775?2:1;
     var verd=['The lab buckled. Time to rethink the plan.','Rough day — safety and morale took real hits.','A workable day. Some patients or staff felt the strain.','Strong shift. A few tradeoffs, but the lab held together.','Outstanding shift — high throughput, safe, and sustainable.'][stars-1];
     var st=''; for(var i=0;i<5;i++){st+='<i class="ti ti-star'+(i<stars?' on':'')+'" aria-hidden="true"></i>';}
     var hud='';
@@ -334,7 +349,7 @@
       hud+='<div class="ept-metric"><div class="k"><i class="ti '+(META[r[0]]?META[r[0]].icon:'ti-currency-dollar')+'" aria-hidden="true"></i>'+r[1]+'</div><div class="v '+c+'" style="font-size:20px">'+r[2]+'</div></div>';
     });
     var rec=''; S.log.forEach(function(l){rec+='<li><b>'+l.tag+':</b> '+l.label+'</li>';});
-    var notes=[]; if(S.flags.cancelled) notes.push('2 cases rebooked'); if(S.flags.bumped) notes.push('1 elective bumped'); if(S.flags.oneLab) notes.push('ran a single lab');
+    var notes=[]; if(S.flags.cancelled) notes.push('cases rebooked'); if(S.flags.bumped) notes.push('an elective bumped'); if(S.flags.oneLab) notes.push('ran a single lab');
     return '<div class="ept-time"><i class="ti ti-clipboard-check" aria-hidden="true"></i>5:30 PM &middot; End of shift</div>'+
       '<div class="ept-h">Shift report</div>'+
       '<div class="stars">'+st+'</div><p class="verdict">'+verd+'</p>'+
@@ -342,13 +357,13 @@
       (notes.length?'<p class="ept-narr" style="margin:8px 0 4px"><i class="ti ti-info-circle" aria-hidden="true" style="color:var(--ep-text3)"></i> Carried into the waitlist: '+notes.join(', ')+'.</p>':'')+
       '<div class="ept-h" style="font-size:15px;margin:16px 0 4px">Your decisions today</div><ul class="recap">'+rec+'</ul>'+
       '<div class="whatif"><i class="ti ti-bulb" aria-hidden="true"></i><div><b>Decision-support view (full game):</b> replay this exact day against a change — add a 5th recovery bed, stagger start times, or add a float nurse — and compare the ripple side by side before you commit a real one.</div></div>'+
-      '<div class="ept-act" style="justify-content:center;margin-top:16px"><button class="btn" id="again"><i class="ti ti-refresh" aria-hidden="true"></i> Replay the day</button></div>';
+      '<div class="ept-act" style="justify-content:center;margin-top:16px"><button class="btn" id="again"><i class="ti ti-refresh" aria-hidden="true"></i> Play a new shift</button></div>';
   }
 
-  function boot(){ init(); scene();
+  function boot(){ newGame(); scene();
     document.getElementById('scene').addEventListener('click',function(e){
-      if(e.target.closest('#start')){ next(); }
-      if(e.target.closest('#again')){ init(); scene(); window.scrollTo&&window.scrollTo(0,0); }
+      if(e.target.closest('#start')){ step=0; phase='choose'; last=null; scene(); }
+      if(e.target.closest('#again')){ newGame(); scene(); }
     });
   }
   boot();
