@@ -290,7 +290,7 @@
     el.style.display='flex';
     var b=seq[step].board; if(S.flags.oneLab && (b.l2==='on'||b.l2==='busy')) b={l1:b.l1,l2:'off',beds:b.beds};
     function labState(x){return x==='on'?'<span class="dot on"></span>running':x==='busy'?'<span class="dot busy"></span>overrun':x==='alert'?'<span class="dot alert"></span>reboot':'<span class="dot off"></span>idle';}
-    var labs=''; for(var L=0;L<CONFIG.rooms;L++){ var stt=L===0?b.l1:L===1?b.l2:'on'; labs+='<div class="ept-cell"><div class="cl"><i class="ti ti-door" aria-hidden="true"></i>EP Lab '+(L+1)+'</div><div class="cv">'+labState(stt)+'</div></div>'; }
+    var labs=''; for(var L=0;L<CONFIG.rooms;L++){ var stt=L===0?b.l1:L===1?b.l2:(step===0?b.l1:'on'); labs+='<div class="ept-cell"><div class="cl"><i class="ti ti-door" aria-hidden="true"></i>EP Lab '+(L+1)+'</div><div class="cv">'+labState(stt)+'</div></div>'; }
     var usedBeds=Math.min(b.beds,CONFIG.beds);
     var beds=''; for(var i=0;i<CONFIG.beds;i++){beds+='<span class="bed'+(i<usedBeds?' full':'')+'"></span>';}
     var waiting=clamp(PLANNED-S.cases,0,PLANNED);
