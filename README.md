@@ -29,11 +29,12 @@ A single day in the lab as a choose-your-path game:
 
 - **Randomized events** — every shift opens with a staffing decision, then draws 3 of 7 events (sick call, recovery-bed gridlock, emergency add-on, equipment fault, supply shortage, a tech leaving, an add-on request) in random order, so no two runs are alike
 - Each choice **ripples through the KPIs** — cases done, patient wait, staff strain, patient safety, and cost
-- **Shift report** — a star rating and a recap of your decisions
+- **Coach feedback** — an exact solver enumerates every decision path for the day's draw, so after each choice you learn whether it was the strongest play (and if not, which one was)
+- **Shift report** — a star rating benchmarked against the best possible for that day ("best possible 4★ — you reached 3★"), plus a coach review marking each decision ✓ or naming the stronger play
 
 ### 2. Lab planner (what-if)
 
-The decision-support view. Sliders for cases booked, procedure rooms, physicians, nurses, technologists, and recovery beds, with live outputs (cases done, wait, staff strain, safety, overtime, cost per case). A two-stage bottleneck model — the procedure side is limited by `min(rooms, physicians, nurses, techs)`, the recovery side by beds, and throughput is the tighter of the two — flags the binding constraint and recommends the single change that adds the most throughput (or the resource you can trim without losing output).
+The decision-support view. Sliders for cases booked, procedure rooms, physicians, nurses, technologists, and recovery beds, with live outputs (cases done, wait, staff strain, safety, overtime, cost per case). A two-stage bottleneck model — the procedure side is limited by `min(rooms, physicians, nurses, techs)`, the recovery side by beds, and throughput is the tighter of the two — flags the binding constraint and recommends the single change that adds the most throughput (or the resource you can trim without losing output). It also searches the full configuration space for two optimal setups at the chosen demand — the **leanest lab** that clears every case and a **sustainable lab** that also keeps strain ≤ 65 — each with a one-click Apply.
 
 Numbers and choices are illustrative — the goal is to communicate the concept, UX, and the "ripple" idea for the design review, not final game balancing.
 
