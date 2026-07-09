@@ -30,7 +30,7 @@ A single day in the lab as a choose-your-path game:
 - **Randomized events** — every shift opens with a staffing decision, then draws 3 of 7 events (sick call, recovery-bed gridlock, emergency add-on, equipment fault, supply shortage, a tech leaving, an add-on request) in random order, so no two runs are alike
 - Each choice **ripples through the KPIs** — cases done, patient wait, staff strain, patient safety, and cost
 - **Coach feedback** — an exact solver enumerates every decision path for the day's draw, so after each choice you learn whether it was the strongest play (and if not, which one was)
-- **Shift report** — a star rating benchmarked against the best possible for that day ("best possible 4★ — you reached 3★"), plus a coach review marking each decision ✓ or naming the stronger play
+- **Shift report** — a three-point benchmark (average · best possible · you). Because the day's events are fixed once dealt, the game enumerates all 81 decision paths and reports the **average shift** (the exact expected score under random choices), the best possible, your result, how far above/below average you landed, and your percentile ("better than 74% of the ways today could have gone") — plus a coach review marking each decision ✓ or naming the stronger play
 
 ### 2. Lab planner (what-if)
 

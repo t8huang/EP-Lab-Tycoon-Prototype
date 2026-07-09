@@ -158,7 +158,7 @@
   var CONFIG={cases:8,rooms:2,phys:2,nurses:3,techs:2,beds:4};
   var PLANNED=CONFIG.cases;
   var TIMES=['7:10 AM','9:20 AM','11:45 AM','2:30 PM'];
-  var S, seq, step, phase, last, caseScale, BEST0=0, OPT_LEAN=null, OPT_SUS=null;
+  var S, seq, step, phase, last, caseScale, BEST0=0, AVG0=0, DIST0=[], OPT_LEAN=null, OPT_SUS=null;
 
   var INTRO={tag:'Staffing', icon:'ti-users', title:'Open the day', board:{l1:'off',l2:'off',beds:0}, narr:'',
     choices:[
@@ -275,6 +275,14 @@
     for(var i=0;i<seq[idx].choices.length;i++){ var v=optionValue(st,flags,idx,i); if(v>best) best=v; }
     return best;
   }
+  function allLeaves(st,flags,idx,out){
+    if(idx>=seq.length){ out.push(scoreOf(st)); return; }
+    for(var i=0;i<seq[idx].choices.length;i++){
+      var res=seq[idx].choices[i].r(flags);
+      var f2=flags; if(res.flag){ f2=Object.assign({},flags); f2[res.flag]=true; }
+      allLeaves(stepState(st,res.d), f2, idx+1, out);
+    }
+  }
   function newGame(){
     PLANNED=CONFIG.cases; caseScale=CONFIG.cases/8;
     var r=simCore(CONFIG), gap=CONFIG.cases-r.capacity, g=clamp(gap/8,-1.5,1.5);
@@ -282,7 +290,8 @@
     INTRO.narr='The board shows '+CONFIG.cases+' catheter ablations booked across '+CONFIG.rooms+' EP lab'+(CONFIG.rooms>1?'s':'')+', with '+CONFIG.beds+' recovery beds, '+CONFIG.nurses+' nurses, '+CONFIG.techs+' techs and '+CONFIG.phys+' electrophysiologist'+(CONFIG.phys>1?'s':'')+'. How do you start the shift?';
     seq=[INTRO].concat(shuffle(EVENTS).slice(0,3));
     step=-1; phase='cover'; last=null;
-    BEST0=valueFrom({cases:S.cases,wait:S.wait,strain:S.strain,safety:S.safety,cost:S.cost},{},0);
+    var lv=[]; allLeaves({cases:S.cases,wait:S.wait,strain:S.strain,safety:S.safety,cost:S.cost},{},0,lv);
+    DIST0=lv.slice().sort(function(a,b){return a-b;}); BEST0=DIST0[DIST0.length-1]; AVG0=lv.reduce(function(a,b){return a+b;},0)/lv.length;
   }
   function curTime(){ if(step<0) return '7:00 AM'; if(step>=seq.length) return '5:30 PM'; return TIMES[step]||'5:30 PM'; }
 
@@ -410,9 +419,13 @@
     var verd=['The lab buckled. Time to rethink the plan.','Rough day — safety and morale took real hits.','A workable day. Some patients or staff felt the strain.','Strong shift. A few tradeoffs, but the lab held together.','Outstanding shift — high throughput, safe, and sustainable.'][stars-1];
     var st=''; for(var i=0;i<5;i++){st+='<i class="ti ti-star'+(i<stars?' on':'')+'" aria-hidden="true"></i>';}
     var allBest=S.log.length>0&&S.log.every(function(l){return l.best;});
-    var bstars=starsFor(BEST0);
-    var bestLine='<p class="ept-narr" style="text-align:center;margin:-4px 0 14px">Best possible with today’s events and this lab: '+bstars+'★ · you reached '+stars+'★'+(allBest?' — you found the optimal line ✓':'')+'</p>'+
-      (bstars<=3?'<p class="ept-narr" style="text-align:center;margin:-8px 0 14px">The ceiling here is the lab setup, not your choices — fix it in the planner.</p>':'');
+    var bstars=starsFor(BEST0), astars=starsFor(AVG0);
+    var vsAvg=Math.round((score-AVG0)/Math.max(0.001,AVG0)*100);
+    var pctile=Math.round(100*DIST0.filter(function(v){return v<=score+1e-9;}).length/DIST0.length);
+    var deltaTxt = vsAvg>0 ? ('<b style="color:var(--ep-good)">'+vsAvg+'% above</b> an average shift') : vsAvg<0 ? ('<b style="color:var(--ep-bad)">'+Math.abs(vsAvg)+'% below</b> an average shift') : 'right on the average shift';
+    var bestLine='<p class="ept-narr" style="text-align:center;margin:-4px 0 6px">Average shift '+astars+'★ &nbsp;·&nbsp; Best possible '+bstars+'★ &nbsp;·&nbsp; <b style="color:var(--ep-text)">You '+stars+'★</b></p>'+
+      '<p class="ept-narr" style="text-align:center;margin:0 0 14px">You scored '+deltaTxt+' — better than '+pctile+'% of the ways today could have gone'+(allBest?', the single best line ✓':'')+'.</p>'+
+      (bstars<=3?'<p class="ept-narr" style="text-align:center;margin:-8px 0 14px">The ceiling here is the lab setup, not your choices — try the planner.</p>':'');
     var hud='';
     [['cases','Cases completed',S.cases+' / '+PLANNED],['wait','Avg patient wait',Math.round(S.wait)+' min'],['strain','Staff strain',Math.round(S.strain)+'%'],['safety','Patient safety',Math.round(S.safety)+'%'],['cost','Overtime cost',money(S.cost)]].forEach(function(r){
       var c = r[0]==='cost'?'':cls(r[0]);
