@@ -39,6 +39,10 @@ The decision-support view. Sliders for cases booked, procedure rooms, physicians
 
 Numbers and choices are illustrative — the goal is to communicate the concept, UX, and the "ripple" idea for the design review, not final game balancing.
 
+## Version history
+
+See [CHANGELOG.md](CHANGELOG.md) for the full evolution (v1 → v7), with a **playable archived copy of every version** in [`versions/`](versions/).
+
 ## Status
 
 Low-fidelity prototype for the Week 7–9 design review / gallery walk. The full game is planned in Unity.

@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EP Lab Tycoon</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+  html,body{margin:0}
+  body{background:var(--ep-page);font-family:var(--ep-font);color:var(--ep-text);-webkit-font-smoothing:antialiased;padding:24px 12px}
+</style>
+</head>
+<body>
+<div class="ept">
+<h2 class="ept-sr">Interactive prototype of EP Lab Tycoon: tune the lab in a what-if planner, then play a shift with those settings, making operational decisions across randomized events and watching throughput, wait, staff strain, safety, and cost change, ending in a shift report with a star rating.</h2>
+<style>
+  :root{
+    --ep-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --ep-page:#eceae3; --ep-card:#ffffff; --ep-soft:#f5f4ef; --ep-inset:#f0eee7;
+    --ep-line:rgba(20,20,18,.12); --ep-line2:rgba(20,20,18,.24);
+    --ep-text:#2b2b27; --ep-text2:#5f5e58; --ep-text3:#8a8980;
+    --ep-accent:#0f6e56; --ep-accent-bg:#e1f5ee; --ep-accent-line:#5dcaa5;
+    --ep-good:#3b6d11; --ep-good-bg:#eaf3de;
+    --ep-warn:#8a5206; --ep-warn-bg:#faeeda;
+    --ep-bad:#a32d2d; --ep-bad-bg:#fcebeb;
+    --ep-blue:#185fa5; --ep-blue-bg:#e6f1fb;
+    --ep-r:10px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --ep-page:#191918; --ep-card:#242422; --ep-soft:#201f1d; --ep-inset:#1c1c1a;
+    --ep-line:rgba(255,255,255,.13); --ep-line2:rgba(255,255,255,.26);
+    --ep-text:#f1efe8; --ep-text2:#b7b5ab; --ep-text3:#8a8980;
+    --ep-accent:#5dcaa5; --ep-accent-bg:#0d3a30; --ep-accent-line:#0f6e56;
+    --ep-good:#97c459; --ep-good-bg:#213b08;
+    --ep-warn:#efb44a; --ep-warn-bg:#3a2606;
+    --ep-bad:#f09595; --ep-bad-bg:#3f1414;
+    --ep-blue:#85b7eb; --ep-blue-bg:#0c2a45;
+  }}
+  .ept{max-width:860px;margin:0 auto;font-family:var(--ep-font);color:var(--ep-text);line-height:1.5}
+  .ept-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+  .ept *{box-sizing:border-box}
+  .ept-frame{background:var(--ep-card);border:0.5px solid var(--ep-line);border-radius:16px;overflow:hidden}
+  .ept-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:0.5px solid var(--ep-line);background:var(--ep-soft);flex-wrap:wrap}
+  .ept-brand{display:flex;align-items:center;gap:10px;font-weight:500;font-size:17px}
+  .ept-logo{width:30px;height:30px;border-radius:8px;background:var(--ep-accent-bg);color:var(--ep-accent);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .ept-status{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--ep-text2)}
+  .ept-status b{font-weight:500;color:var(--ep-text)}
+  .ept-status i{font-size:15px;vertical-align:-2px;margin-right:4px;color:var(--ep-text3)}
+  .ept-hud{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;padding:14px 18px 6px}
+  .ept-metric{background:var(--ep-soft);border-radius:var(--ep-r);padding:10px 12px}
+  .ept-metric .k{font-size:12px;color:var(--ep-text2);display:flex;align-items:center;gap:5px}
+  .ept-metric .k i{font-size:14px;color:var(--ep-text3)}
+  .ept-metric .v{font-size:23px;font-weight:500;margin-top:3px;line-height:1.1}
+  .ept-metric .u{font-size:12px;color:var(--ep-text3);font-weight:400}
+  .v.good{color:var(--ep-good)} .v.warn{color:var(--ep-warn)} .v.bad{color:var(--ep-bad)}
+  .ept-board{display:flex;flex-wrap:wrap;gap:8px;padding:8px 18px 0}
+  .ept-cell{flex:1;min-width:120px;border:0.5px dashed var(--ep-line2);border-radius:var(--ep-r);padding:9px 11px;background:var(--ep-inset)}
+  .ept-cell .cl{font-size:11px;color:var(--ep-text3);display:flex;align-items:center;gap:5px}
+  .ept-cell .cv{font-size:14px;font-weight:500;margin-top:3px;display:flex;align-items:center;gap:6px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--ep-text3)}
+  .dot.on{background:var(--ep-good)} .dot.busy{background:var(--ep-warn)} .dot.off{background:var(--ep-line2)} .dot.alert{background:var(--ep-bad)}
+  .beds{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+  .bed{width:20px;height:14px;border:0.5px solid var(--ep-line2);border-radius:3px;background:var(--ep-card)}
+  .bed.full{background:var(--ep-warn-bg);border-color:var(--ep-warn)}
+  .ept-scene{padding:16px 18px 18px}
+  .ept-time{font-size:12px;font-weight:500;letter-spacing:.03em;text-transform:uppercase;color:var(--ep-accent);display:flex;align-items:center;gap:7px}
+  .ept-h{font-size:20px;font-weight:500;margin:6px 0 8px}
+  .ept-narr{font-size:15px;color:var(--ep-text2);margin:0 0 14px}
+  .ept-choices{display:flex;flex-direction:column;gap:9px}
+  .ept-choice{display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;background:var(--ep-card);border:0.5px solid var(--ep-line2);border-radius:12px;padding:12px 13px;cursor:pointer;font-family:inherit;color:inherit;transition:border-color .12s,background .12s}
+  .ept-choice:hover{border-color:var(--ep-accent);background:var(--ep-accent-bg)}
+  .ept-choice .ci{width:26px;height:26px;flex:none;border-radius:7px;background:var(--ep-inset);color:var(--ep-text2);display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px}
+  .ept-choice:hover .ci{background:var(--ep-card);color:var(--ep-accent)}
+  .ept-choice .ct{font-size:15px;font-weight:500}
+  .ept-choice .ch{font-size:13px;color:var(--ep-text3);margin-top:2px}
+  .ept-out{background:var(--ep-soft);border:0.5px solid var(--ep-line);border-radius:12px;padding:14px}
+  .ept-out .otag{font-size:12px;font-weight:500;color:var(--ep-text3);display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .ept-out .otxt{font-size:15px;margin:0 0 11px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:12.5px;font-weight:500;padding:3px 9px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;background:var(--ep-inset);color:var(--ep-text2)}
+  .chip.up{background:var(--ep-good-bg);color:var(--ep-good)} .chip.down{background:var(--ep-bad-bg);color:var(--ep-bad)}
+  .chip i{font-size:14px}
+  .ept-act{display:flex;justify-content:flex-end;gap:9px;margin-top:12px}
+  .btn{font-family:inherit;font-size:14px;font-weight:500;border-radius:var(--ep-r);padding:9px 16px;cursor:pointer;border:0.5px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text);display:inline-flex;align-items:center;gap:7px;transition:background .12s,border-color .12s}
+  .btn:hover{background:var(--ep-soft)}
+  .btn.primary{background:var(--ep-accent);border-color:var(--ep-accent);color:#fff}
+  @media (prefers-color-scheme:dark){.btn.primary{color:#04241c}}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn i{font-size:16px}
+  .btn-big{font-size:16px;padding:12px 26px;border-radius:12px}
+  .cover{padding:18px 16px 8px;text-align:center}
+  .cover-hero{background:var(--ep-accent-bg);border:0.5px solid var(--ep-line);border-radius:16px;padding:24px 18px 20px;margin-bottom:18px}
+  .cover-emblem{width:62px;height:62px;border-radius:16px;background:var(--ep-accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:33px}
+  @media (prefers-color-scheme:dark){.cover-emblem{color:#04241c}}
+  .cover-title{font-size:30px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin:12px 0 5px}
+  .cover-title .t2{color:var(--ep-accent)}
+  .cover-tag{font-size:15px;color:var(--ep-text2);margin:0 auto;max-width:430px}
+  .ecg{display:block;width:230px;height:26px;margin:15px auto 0}
+  .brief-label{font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ep-text3);margin:0 0 9px;text-align:left}
+  .loadout{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:0 0 20px}
+  .lt{background:var(--ep-soft);border:0.5px solid var(--ep-line);border-radius:12px;padding:11px 13px;text-align:left}
+  .lt i{font-size:18px;color:var(--ep-accent)}
+  .lt .lv{font-size:19px;font-weight:500;margin-top:4px;line-height:1.1}
+  .lt .ll{font-size:11.5px;color:var(--ep-text3);margin-top:2px}
+  .cover-note{font-size:12px;color:var(--ep-text3);margin:0 0 16px}
+  .recap{margin:2px 0 0;padding:0;list-style:none;font-size:13.5px}
+  .recap li{display:flex;gap:8px;padding:7px 0;border-top:0.5px solid var(--ep-line);color:var(--ep-text2)}
+  .recap li:first-child{border-top:0}
+  .recap b{font-weight:500;color:var(--ep-text)}
+  .stars{font-size:26px;color:var(--ep-line2);display:flex;gap:3px;justify-content:center;margin:2px 0 6px}
+  .stars i.on{color:var(--ep-warn)}
+  .verdict{text-align:center;font-size:16px;font-weight:500;margin:0 0 14px}
+  .whatif{background:var(--ep-blue-bg);border:0.5px solid var(--ep-line);border-radius:12px;padding:12px 14px;font-size:13.5px;color:var(--ep-text2);display:flex;gap:10px;align-items:flex-start;margin-top:14px}
+  .whatif i{font-size:18px;color:var(--ep-blue);flex:none;margin-top:1px}
+  .whatif b{color:var(--ep-text);font-weight:500}
+  .pl-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:2px}
+  .pl-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px}
+  @media (max-width:640px){.pl-grid{grid-template-columns:1fr}}
+  .pl-row{display:grid;grid-template-columns:118px 1fr 26px;align-items:center;gap:10px;margin:0 0 13px}
+  .pl-lab{font-size:13.5px;color:var(--ep-text2);display:flex;align-items:center;gap:7px}
+  .pl-lab i{font-size:16px;color:var(--ep-text3)}
+  .pl-row input[type=range]{width:100%;accent-color:var(--ep-accent)}
+  .pl-val{font-size:15px;font-weight:500;text-align:right}
+  .pl-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .pl-bn{border-radius:10px;padding:10px 12px;font-size:13.5px;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .pl-bn i{font-size:17px;flex:none}
+  .pl-bn.warn{background:var(--ep-warn-bg);color:var(--ep-warn)}
+  .pl-bn.ok{background:var(--ep-good-bg);color:var(--ep-good)}
+  .pl-bn b{font-weight:500}
+  .coach{display:flex;gap:7px;align-items:flex-start;font-size:13px;font-weight:500;margin-top:11px;padding-top:10px;border-top:0.5px dashed var(--ep-line2)}
+  .coach.ok{color:var(--ep-good)} .coach.no{color:var(--ep-warn)}
+  .coach i{font-size:15px;flex:none;margin-top:1px}
+  .opt-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0.5px solid var(--ep-line);border-radius:10px;padding:9px 11px;margin-bottom:8px;background:var(--ep-soft)}
+  .opt-row .ol{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px}
+  .opt-row .ol i{font-size:15px;color:var(--ep-accent)}
+  .opt-row .oc{font-size:12px;color:var(--ep-text2);margin-top:2px}
+  .recap li i{font-size:15px;flex:none;margin-top:3px}
+</style>
+
+<div class="ept-frame">
+  <div class="ept-top">
+    <div class="ept-brand">
+      <span class="ept-logo" aria-hidden="true"><i class="ti ti-heartbeat"></i></span>
+      EP Lab Tycoon
+    </div>
+    <div class="ept-status">
+      <span><i class="ti ti-clock" aria-hidden="true"></i><b id="s-time">7:00 AM</b></span>
+      <span><i class="ti ti-currency-dollar" aria-hidden="true"></i>overtime <b id="s-cost">$0</b></span>
+    </div>
+  </div>
+  <div class="ept-hud" id="hud"></div>
+  <div class="ept-board" id="board"></div>
+  <div class="ept-scene" id="scene"></div>
+</div>
+
+<script>
+(function(){
+  var CONFIG={cases:8,rooms:2,phys:2,nurses:3,techs:2,beds:4};
+  var PLANNED=CONFIG.cases;
+  var TIMES=['7:10 AM','9:20 AM','11:45 AM','2:30 PM'];
+  var S, seq, step, phase, last, caseScale, BEST0=0, OPT_LEAN=null, OPT_SUS=null;
+
+  var INTRO={tag:'Staffing', icon:'ti-users', title:'Open the day', board:{l1:'off',l2:'off',beds:0}, narr:'',
+    choices:[
+      {ci:'A',ct:'Run both labs at full pace',ch:'Clear the backlog fast — but no slack if something breaks.',
+       r:function(){return {t:'Both labs, full pace. The board fills fast, and so does the pressure on the team.',d:{cases:2,strain:12,safety:-2,cost:200}};}},
+      {ci:'B',ct:'Hold one nurse as a float',ch:'A little less throughput now, a safety net for later.',
+       r:function(){return {t:'You keep a nurse in reserve. It costs some capacity now — but buys resilience.',d:{cases:2,strain:6,safety:0,cost:500},flag:'float'};}},
+      {ci:'C',ct:'Run lean and steady',ch:'Calm and safe, but the waitlist barely moves.',
+       r:function(){return {t:'You keep the pace deliberate and safe — but today the waitlist barely moves.',d:{cases:1,strain:-3,safety:3,cost:100},flag:'oneLab'};}}
+    ]};
+
+  var EVENTS=[
+    {tag:'Sick call', icon:'ti-user-exclamation', title:'A nurse calls in sick', board:{l1:'on',l2:'on',beds:2},
+     narr:'Recovery nurse Priya calls in — she is out for the day. You are suddenly a nurse short with a full afternoon ahead.',
+     choices:[
+       {ci:'A',ct:'Backfill from your reserve',ch:'Smooth if you kept a float — costly if you did not.',
+        r:function(f){ f=f||S.flags; return f.float ? {t:'Your float nurse slides straight into recovery. Barely a ripple in the day.',d:{cases:2,strain:6,safety:-1,cost:400}} : {t:'With no slack in the roster, you pull a nurse off procedures. Recovery runs thin and the team feels it.',d:{cases:2,strain:16,safety:-8,cost:600}}; }},
+       {ci:'B',ct:'Cancel two afternoon cases',ch:'Protects staff and safety — the backlog grows.',
+        r:function(){return {t:'Two patients are rebooked. The team stays safe, but those cases roll into the waitlist.',d:{cases:1,strain:-4,safety:4,cost:300},flag:'cancelled'};}},
+       {ci:'C',ct:'Push through short-staffed',ch:'Keep the pace — everyone pays for it.',
+        r:function(){return {t:'You hold the schedule, but by noon the team is frayed and cutting corners.',d:{cases:2,strain:18,safety:-10,cost:200}};}}
+     ]},
+    {tag:'Bed crunch', icon:'ti-bed', title:'Recovery gridlock', board:{l1:'on',l2:'busy',beds:4},
+     narr:'A case ran 40 minutes long. Every recovery bed is occupied and the next patient is prepped with nowhere to go.',
+     choices:[
+       {ci:'A',ct:'Hold the next case in prep',ch:'Safe, but the whole schedule slips.',
+        r:function(){return {t:'You pause the line. Nothing goes wrong — but the day is now running behind.',d:{cases:1,wait:20,strain:2,safety:2,cost:100}};}},
+       {ci:'B',ct:'Borrow a PACU bed down the hall',ch:'Keeps flow — costs money and goodwill.',
+        r:function(){return {t:'PACU lends you a bed. Flow is restored, at a price and a little cross-team friction.',d:{cases:2,wait:5,strain:6,cost:900}};}},
+       {ci:'C',ct:'Discharge a patient early to free a bed',ch:'Keeps moving — a rushed call on safety.',
+        r:function(){return {t:'You move a patient out early. The line keeps flowing, but that discharge felt rushed.',d:{cases:2,wait:-5,safety:-9,strain:3}};}}
+     ]},
+    {tag:'Emergency', icon:'ti-alert-triangle', title:'Emergency add-on', board:{l1:'on',l2:'alert',beds:3},
+     narr:'An urgent inpatient ablation is added to the day. At the same moment, a mapping system needs a 20-minute reboot.',
+     choices:[
+       {ci:'A',ct:'Bump an elective, take the emergency now',ch:'Clinically right — an elective waits another day.',
+        r:function(){return {t:'You bump one elective and take the urgent case. The right call — but another patient is rebooked.',d:{cases:2,safety:6,wait:15,cost:700},flag:'bumped'};}},
+       {ci:'B',ct:'Finish electives, fit emergency at the end',ch:'Clear the board — long, expensive overtime.',
+        r:function(){return {t:'You clear every case, but it is late, the bill for overtime is real, and everyone is exhausted.',d:{cases:3,strain:16,safety:-6,cost:1500}};}},
+       {ci:'C',ct:'Divert the emergency to a partner site',ch:'Protects your day — a risky handoff.',
+        r:function(){return {t:'Your day stays clean, but you handed off a sick patient to another team.',d:{cases:2,safety:-4,strain:-2,cost:200}};}}
+     ]},
+    {tag:'Equipment', icon:'ti-bolt', title:'Mapping system fault', board:{l1:'alert',l2:'on',beds:2},
+     narr:'A 3D mapping system throws an error mid-case. The team can continue on backup imaging, but it is slower and less precise.',
+     choices:[
+       {ci:'A',ct:'Continue on backup imaging',ch:'Slower and careful — safe hands.',
+        r:function(){return {t:'You finish on backup imaging — slower, but steady and safe.',d:{cases:1,wait:15,strain:4,safety:1,cost:200}};}},
+       {ci:'B',ct:'Move the case to another lab',ch:'Keeps the list moving — a tighter day.',
+        r:function(){return {t:'You shuffle rooms and keep the list moving, though the day gets tighter.',d:{cases:2,strain:8,wait:5,cost:300}};}},
+       {ci:'C',ct:'Pause and call biomed',ch:'Wait for the fix — the schedule slips.',
+        r:function(){return {t:'Biomed has it back in 30 minutes. Safe, but the schedule takes the hit.',d:{cases:1,wait:25,strain:-2,safety:2,cost:100}};}}
+     ]},
+    {tag:'Supply', icon:'ti-package', title:'Running low on catheters', board:{l1:'on',l2:'on',beds:2},
+     narr:'Stores flags that the specialty ablation catheters are nearly out — enough for maybe two more cases before a resupply arrives this afternoon.',
+     choices:[
+       {ci:'A',ct:'Ration to the sickest patients first',ch:'Protects safety — defers electives.',
+        r:function(){return {t:'You protect the highest-acuity cases and defer the rest to the resupply.',d:{cases:1,safety:4,wait:10,cost:100},flag:'cancelled'};}},
+       {ci:'B',ct:'Borrow stock from another site',ch:'Keeps flow — a courier bill.',
+        r:function(){return {t:'A courier brings extra stock across town. Flow holds, but it is not cheap.',d:{cases:2,strain:3,cost:800}};}},
+       {ci:'C',ct:'Substitute an alternative device',ch:'Keeps moving — not the team’s first choice.',
+        r:function(){return {t:'You switch to a substitute catheter. It works, but it is not what the team prefers.',d:{cases:2,safety:-7,cost:150}};}}
+     ]},
+    {tag:'Staff gap', icon:'ti-user-minus', title:'A tech needs to leave', board:{l1:'on',l2:'on',beds:3},
+     narr:'One of your technologists gets a call — a family emergency. They ask to leave after the current case.',
+     choices:[
+       {ci:'A',ct:'Let them go, cover the gap',ch:'The right thing — the team absorbs it.',
+        r:function(){return {t:'You send them home and redistribute the work. The remaining team absorbs the load.',d:{cases:1,strain:12,safety:-2,cost:200}};}},
+       {ci:'B',ct:'Ask them to stay one more case',ch:'One more case — some goodwill spent.',
+        r:function(){return {t:'They agree to one more case, then leave. You gain a case but spend some goodwill.',d:{cases:2,strain:8,safety:-1,cost:300}};}},
+       {ci:'C',ct:'Close the afternoon list early',ch:'Everyone rests — cases roll over.',
+        r:function(){return {t:'You wind down early. Everyone is safe and rested, but cases roll to another day.',d:{cases:1,strain:-4,safety:3,wait:10,cost:100},flag:'cancelled'};}}
+     ]},
+    {tag:'Add-on', icon:'ti-user-plus', title:'A “quick” add-on', board:{l1:'on',l2:'on',beds:2},
+     narr:'A staff cardiologist catches you in the hall and pushes to squeeze in a “quick” case for their patient today.',
+     choices:[
+       {ci:'A',ct:'Fit it in',ch:'Say yes — the list and the pressure grow.',
+        r:function(){return {t:'You make room. The list grows and so does the pressure.',d:{cases:2,strain:10,wait:10,cost:300}};}},
+       {ci:'B',ct:'Hold the line, offer tomorrow',ch:'Protect today’s plan.',
+        r:function(){return {t:'You keep today’s plan intact and book them first thing tomorrow.',d:{cases:1,safety:2,strain:-2}};}},
+       {ci:'C',ct:'Triage — only if urgent',ch:'Make the call on clinical need.',
+        r:function(){return {t:'You triage it properly; it can safely wait, so it does.',d:{cases:1,safety:3,wait:5,cost:100}};}}
+     ]}
+  ];
+
+  var META={
+    cases:{label:'Cases done',icon:'ti-stethoscope',better:'up'},
+    wait:{label:'Avg wait',icon:'ti-clock',unit:'min',better:'down'},
+    strain:{label:'Staff strain',icon:'ti-activity',unit:'%',better:'down'},
+    safety:{label:'Patient safety',icon:'ti-heart',unit:'%',better:'up'}
+  };
+
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+  function scoreOf(st){ return 0.40*(st.safety/100)+0.30*clamp(st.cases/Math.max(1,PLANNED),0,1)+0.20*(1-st.strain/100)+0.10*(1-clamp(st.cost/6000,0,1)); }
+  function starsFor(s){ return s>=0.85?5:s>=0.83?4:s>=0.805?3:s>=0.775?2:1; }
+  function stepState(st,d){
+    var n={cases:st.cases,wait:st.wait,strain:st.strain,safety:st.safety,cost:st.cost};
+    if(d.cases){ var dc=Math.max(1,Math.round(d.cases*caseScale)); n.cases=clamp(n.cases+dc,0,PLANNED); }
+    if(d.wait) n.wait=clamp(n.wait+d.wait,5,120);
+    if(d.strain) n.strain=clamp(n.strain+d.strain,0,100);
+    if(d.safety) n.safety=clamp(n.safety+d.safety,0,100);
+    if(d.cost) n.cost=Math.max(0,n.cost+d.cost);
+    return n;
+  }
+  function optionValue(st,flags,idx,i){
+    var res=seq[idx].choices[i].r(flags);
+    var f2=flags; if(res.flag){ f2=Object.assign({},flags); f2[res.flag]=true; }
+    return valueFrom(stepState(st,res.d),f2,idx+1);
+  }
+  function valueFrom(st,flags,idx){
+    if(idx>=seq.length) return scoreOf(st);
+    var best=-1;
+    for(var i=0;i<seq[idx].choices.length;i++){ var v=optionValue(st,flags,idx,i); if(v>best) best=v; }
+    return best;
+  }
+  function newGame(){
+    PLANNED=CONFIG.cases; caseScale=CONFIG.cases/8;
+    var r=simCore(CONFIG), gap=CONFIG.cases-r.capacity, g=clamp(gap/8,-1.5,1.5);
+    S={cases:0, wait:clamp(Math.round(25+15*Math.max(0,g)),8,55), strain:clamp(Math.round(20+20*g),8,60), safety:clamp(Math.round(95-8*Math.max(0,g)),70,98), cost:0, flags:{}, log:[]};
+    INTRO.narr='The board shows '+CONFIG.cases+' catheter ablations booked across '+CONFIG.rooms+' EP lab'+(CONFIG.rooms>1?'s':'')+', with '+CONFIG.beds+' recovery beds, '+CONFIG.nurses+' nurses, '+CONFIG.techs+' techs and '+CONFIG.phys+' electrophysiologist'+(CONFIG.phys>1?'s':'')+'. How do you start the shift?';
+    seq=[INTRO].concat(shuffle(EVENTS).slice(0,3));
+    step=-1; phase='cover'; last=null;
+    BEST0=valueFrom({cases:S.cases,wait:S.wait,strain:S.strain,safety:S.safety,cost:S.cost},{},0);
+  }
+  function curTime(){ if(step<0) return '7:00 AM'; if(step>=seq.length) return '5:30 PM'; return TIMES[step]||'5:30 PM'; }
+
+  function apply(d){
+    if(d.cases) S.cases=clamp(S.cases+d.cases,0,PLANNED);
+    if(d.wait) S.wait=clamp(S.wait+d.wait,5,120);
+    if(d.strain) S.strain=clamp(S.strain+d.strain,0,100);
+    if(d.safety) S.safety=clamp(S.safety+d.safety,0,100);
+    if(d.cost) S.cost=Math.max(0,S.cost+d.cost);
+  }
+  function money(n){return '$'+Math.round(n).toLocaleString();}
+  function cls(m){
+    if(m==='wait') return S.wait<=30?'good':S.wait<=45?'warn':'bad';
+    if(m==='strain') return S.strain<=40?'good':S.strain<=65?'warn':'bad';
+    if(m==='safety') return S.safety>=85?'good':S.safety>=70?'warn':'bad';
+    return '';
+  }
+  function val(m){
+    if(m==='cases') return S.cases+'<span class="u"> / '+PLANNED+'</span>';
+    if(m==='wait') return Math.round(S.wait)+'<span class="u"> min</span>';
+    if(m==='strain') return Math.round(S.strain)+'<span class="u"> %</span>';
+    if(m==='safety') return Math.round(S.safety)+'<span class="u"> %</span>';
+  }
+  function renderHUD(){
+    var h='';
+    ['cases','wait','strain','safety'].forEach(function(m){
+      h+='<div class="ept-metric"><div class="k"><i class="ti '+META[m].icon+'" aria-hidden="true"></i>'+META[m].label+'</div><div class="v '+cls(m)+'">'+val(m)+'</div></div>';
+    });
+    document.getElementById('hud').innerHTML=h;
+    document.getElementById('s-cost').textContent=money(S.cost);
+    document.getElementById('s-time').textContent=curTime();
+  }
+  function renderBoard(){
+    var el=document.getElementById('board');
+    if(step<0||step>=seq.length){el.innerHTML='';el.style.display='none';return;}
+    el.style.display='flex';
+    var b=seq[step].board; if(S.flags.oneLab && (b.l2==='on'||b.l2==='busy')) b={l1:b.l1,l2:'off',beds:b.beds};
+    function labState(x){return x==='on'?'<span class="dot on"></span>running':x==='busy'?'<span class="dot busy"></span>overrun':x==='alert'?'<span class="dot alert"></span>reboot':'<span class="dot off"></span>idle';}
+    var labs=''; for(var L=0;L<CONFIG.rooms;L++){ var stt=L===0?b.l1:L===1?b.l2:(step===0?b.l1:'on'); labs+='<div class="ept-cell"><div class="cl"><i class="ti ti-door" aria-hidden="true"></i>EP Lab '+(L+1)+'</div><div class="cv">'+labState(stt)+'</div></div>'; }
+    var usedBeds=Math.min(b.beds,CONFIG.beds);
+    var beds=''; for(var i=0;i<CONFIG.beds;i++){beds+='<span class="bed'+(i<usedBeds?' full':'')+'"></span>';}
+    var waiting=clamp(PLANNED-S.cases,0,PLANNED);
+    el.innerHTML=labs+
+      '<div class="ept-cell"><div class="cl"><i class="ti ti-bed" aria-hidden="true"></i>Recovery beds</div><div class="beds">'+beds+'</div></div>'+
+      '<div class="ept-cell"><div class="cl"><i class="ti ti-users" aria-hidden="true"></i>Waiting</div><div class="cv">'+waiting+' patients</div></div>';
+  }
+  function chip(m,v){
+    if(!v) return '';
+    var meta=META[m];
+    var better = meta?meta.better:'down';
+    var improves = better==='up'? v>0 : v<0;
+    var unit = m==='wait'?' min':(m==='strain'||m==='safety')?'%':'';
+    var disp = m==='cost' ? (v>0?'+':'−')+money(Math.abs(v)) : (v>0?'+':'')+v+unit;
+    var label = m==='cost'?'cost':meta.label.toLowerCase();
+    var icon = v>0?'ti-arrow-up-right':'ti-arrow-down-right';
+    return '<span class="chip '+(improves?'up':'down')+'"><i class="ti '+icon+'" aria-hidden="true"></i>'+label+' '+disp+'</span>';
+  }
+
+  function scene(){
+    renderHUD(); renderBoard();
+    var el=document.getElementById('scene');
+    if(step<0){ el.innerHTML=cover(); return; }
+    if(step>=seq.length){ el.innerHTML=report(); return; }
+    var sc=seq[step];
+    var head='<div class="ept-time"><i class="ti '+sc.icon+'" aria-hidden="true"></i>'+TIMES[step]+' &middot; '+sc.tag+'</div>';
+    if(phase==='choose'){
+      var c=''; sc.choices.forEach(function(ch,i){
+        c+='<button class="ept-choice" data-i="'+i+'"><span class="ci">'+ch.ci+'</span><span><span class="ct">'+ch.ct+'</span><span class="ch">'+ch.ch+'</span></span></button>';
+      });
+      el.innerHTML=head+'<div class="ept-h">'+sc.title+'</div><p class="ept-narr">'+sc.narr+'</p><div class="ept-choices">'+c+'</div>';
+      Array.prototype.forEach.call(el.querySelectorAll('.ept-choice'),function(btn){btn.onclick=function(){choose(+btn.dataset.i);};});
+    } else {
+      var chips=''; ['cases','wait','strain','safety'].forEach(function(m){chips+=chip(m,last.d[m]||0);}); chips+=chip('cost',last.d.cost||0);
+      var coachLine = last.best
+        ? '<div class="coach ok"><i class="ti ti-target-arrow" aria-hidden="true"></i>Coach: strongest play available here — well read.</div>'
+        : '<div class="coach no"><i class="ti ti-target-arrow" aria-hidden="true"></i>Coach: “'+last.better+'” would have set up a stronger day.</div>';
+      el.innerHTML=head+'<div class="ept-h">'+last.choiceLabel+'</div>'+
+        '<div class="ept-out"><div class="otag"><i class="ti ti-arrow-bounce" aria-hidden="true"></i>what happened</div><p class="otxt">'+last.t+'</p><div class="chips">'+chips+'</div>'+coachLine+'</div>'+
+        '<div class="ept-act"><button class="btn primary" id="nx">'+(step>=seq.length-1?'See shift report':'Continue')+' <i class="ti ti-arrow-right" aria-hidden="true"></i></button></div>';
+      document.getElementById('nx').onclick=next;
+    }
+  }
+  function choose(i){ var sc=seq[step];
+    var snap={cases:S.cases,wait:S.wait,strain:S.strain,safety:S.safety,cost:S.cost};
+    var vals=sc.choices.map(function(_,k){ return optionValue(snap,S.flags,step,k); });
+    var bi=0; vals.forEach(function(v,k){ if(v>vals[bi]) bi=k; });
+    var isBest=vals[i]>=vals[bi]-1e-9;
+    var ch=sc.choices[i]; var res=ch.r(S.flags);
+    var d=Object.assign({},res.d); if(d.cases) d.cases=Math.max(1,Math.round(d.cases*caseScale));
+    apply(d); if(res.flag) S.flags[res.flag]=true;
+    S.log.push({tag:sc.tag,label:ch.ct,best:isBest,better:isBest?null:sc.choices[bi].ct});
+    last={t:res.t,d:d,choiceLabel:ch.ct,best:isBest,better:isBest?null:sc.choices[bi].ct};
+    phase='outcome'; scene();
+  }
+  function next(){ if(step<seq.length-1){ step++; phase='choose'; last=null; } else { step=seq.length; last=null; } scene(); }
+
+  function cover(){
+    document.getElementById('board').style.display='none';
+    var staff=CONFIG.nurses+CONFIG.techs+CONFIG.phys;
+    return '<div class="cover">'+
+      '<div class="cover-hero">'+
+        '<span class="cover-emblem" aria-hidden="true"><i class="ti ti-heartbeat"></i></span>'+
+        '<div class="cover-title">EP Lab <span class="t2">Tycoon</span></div>'+
+        '<p class="cover-tag">Run the lab. Beat the backlog. Keep patients safe.</p>'+
+        '<svg class="ecg" viewBox="0 0 230 26" fill="none" stroke="var(--ep-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="0,13 72,13 84,13 92,4 102,22 112,13 150,13 160,8 170,18 180,13 230,13"/></svg>'+
+      '</div>'+
+      '<div class="brief-label">Today’s board</div>'+
+      '<div class="loadout">'+
+        '<div class="lt"><i class="ti ti-stethoscope" aria-hidden="true"></i><div class="lv">'+CONFIG.cases+'</div><div class="ll">ablations booked</div></div>'+
+        '<div class="lt"><i class="ti ti-door" aria-hidden="true"></i><div class="lv">'+CONFIG.rooms+'</div><div class="ll">EP lab'+(CONFIG.rooms>1?'s':'')+'</div></div>'+
+        '<div class="lt"><i class="ti ti-bed" aria-hidden="true"></i><div class="lv">'+CONFIG.beds+'</div><div class="ll">recovery beds</div></div>'+
+        '<div class="lt"><i class="ti ti-users" aria-hidden="true"></i><div class="lv">'+staff+'</div><div class="ll">'+CONFIG.nurses+' nurses · '+CONFIG.techs+' techs · '+CONFIG.phys+' EPs</div></div>'+
+      '</div>'+
+      '<p class="cover-note">Set the lab up in the planner to change these — your settings carry into the shift.</p>'+
+      '<div class="ept-act" style="justify-content:center;flex-wrap:wrap"><button class="btn primary btn-big" id="start"><i class="ti ti-player-play" aria-hidden="true"></i> Start the shift</button>'+
+      '<button class="btn btn-big" id="planner"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Lab planner</button></div>'+
+    '</div>';
+  }
+
+  function report(){
+    document.getElementById('board').style.display='none';
+    var through=clamp(S.cases/Math.max(1,PLANNED),0,1);
+    var score=0.40*(S.safety/100)+0.30*through+0.20*(1-S.strain/100)+0.10*(1-clamp(S.cost/6000,0,1));
+    var stars=starsFor(score);
+    var verd=['The lab buckled. Time to rethink the plan.','Rough day — safety and morale took real hits.','A workable day. Some patients or staff felt the strain.','Strong shift. A few tradeoffs, but the lab held together.','Outstanding shift — high throughput, safe, and sustainable.'][stars-1];
+    var st=''; for(var i=0;i<5;i++){st+='<i class="ti ti-star'+(i<stars?' on':'')+'" aria-hidden="true"></i>';}
+    var allBest=S.log.length>0&&S.log.every(function(l){return l.best;});
+    var bstars=starsFor(BEST0);
+    var bestLine='<p class="ept-narr" style="text-align:center;margin:-4px 0 14px">Best possible with today’s events and this lab: '+bstars+'★ · you reached '+stars+'★'+(allBest?' — you found the optimal line ✓':'')+'</p>'+
+      (bstars<=3?'<p class="ept-narr" style="text-align:center;margin:-8px 0 14px">The ceiling here is the lab setup, not your choices — fix it in the planner.</p>':'');
+    var hud='';
+    [['cases','Cases completed',S.cases+' / '+PLANNED],['wait','Avg patient wait',Math.round(S.wait)+' min'],['strain','Staff strain',Math.round(S.strain)+'%'],['safety','Patient safety',Math.round(S.safety)+'%'],['cost','Overtime cost',money(S.cost)]].forEach(function(r){
+      var c = r[0]==='cost'?'':cls(r[0]);
+      hud+='<div class="ept-metric"><div class="k"><i class="ti '+(META[r[0]]?META[r[0]].icon:'ti-currency-dollar')+'" aria-hidden="true"></i>'+r[1]+'</div><div class="v '+c+'" style="font-size:20px">'+r[2]+'</div></div>';
+    });
+    var rec=''; S.log.forEach(function(l){
+      rec+='<li>'+(l.best?'<i class="ti ti-check" style="color:var(--ep-good)" aria-hidden="true"></i>':'<i class="ti ti-arrow-up-right" style="color:var(--ep-warn)" aria-hidden="true"></i>')+
+        '<span><b>'+l.tag+':</b> '+l.label+(l.best?'':' <span style="color:var(--ep-text3)">· stronger play: '+l.better+'</span>')+'</span></li>';
+    });
+    var notes=[]; if(S.flags.cancelled) notes.push('cases rebooked'); if(S.flags.bumped) notes.push('an elective bumped'); if(S.flags.oneLab) notes.push('ran lean');
+    return '<div class="ept-time"><i class="ti ti-clipboard-check" aria-hidden="true"></i>5:30 PM &middot; End of shift</div>'+
+      '<div class="ept-h">Shift report</div>'+
+      '<div class="stars">'+st+'</div><p class="verdict">'+verd+'</p>'+bestLine+
+      '<div class="ept-hud" style="padding:0 0 6px">'+hud+'</div>'+
+      (notes.length?'<p class="ept-narr" style="margin:8px 0 4px"><i class="ti ti-info-circle" aria-hidden="true" style="color:var(--ep-text3)"></i> Carried into the waitlist: '+notes.join(', ')+'.</p>':'')+
+      '<div class="ept-h" style="font-size:15px;margin:16px 0 4px">Coach review — your decisions</div><ul class="recap">'+rec+'</ul>'+
+      '<div class="whatif"><i class="ti ti-bulb" aria-hidden="true"></i><div><b>Try a different lab:</b> open the Lab planner to change staffing, rooms, or beds — your settings carry into the next shift, so you can watch the day play out under a new setup.</div></div>'+
+      '<div class="ept-act" style="justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn" id="again"><i class="ti ti-refresh" aria-hidden="true"></i> Play a new shift</button><button class="btn" id="planner"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Lab planner</button></div>';
+  }
+
+  function simCore(inp){
+    var CPR=4, BC=6;
+    var procRooms=Math.min(inp.rooms,inp.phys,inp.nurses,inp.techs);
+    var procCap=procRooms*CPR, recovCap=inp.beds*BC, capacity=Math.min(procCap,recovCap);
+    var done=Math.min(inp.cases,capacity), backlog=Math.max(0,inp.cases-done);
+    var dr=inp.cases/Math.max(1,capacity);
+    var wait=Math.round(Math.max(8, dr<=1?12+23*dr:35+80*Math.min(1,dr-1)));
+    var procUtil=done/Math.max(1,procCap);
+    var strain=Math.round(clamp(20+68*procUtil+(backlog>0?12:0),8,100));
+    var otH=Math.round((backlog>0?(backlog*120/60)/Math.max(1,procRooms):0)*10)/10;
+    var otCost=Math.round(otH*procRooms*4*110);
+    var cost=inp.phys*1100+inp.nurses*520+inp.techs*560+inp.rooms*900+inp.beds*140+otCost;
+    var cpc=done>0?Math.round(cost/done):cost;
+    var safety=Math.round(clamp(100-0.35*Math.max(0,strain-55)-3.2*otH-((recovCap<procCap&&backlog>0)?8:0),45,100));
+    var bn; if(recovCap<procCap){bn='Recovery beds';} else {var arr=[['Procedure rooms',inp.rooms],['Physicians',inp.phys],['Nurses',inp.nurses],['Technologists',inp.techs]].sort(function(a,b){return a[1]-b[1];});bn=arr[0][0];}
+    return {done:done,backlog:backlog,capacity:capacity,wait:wait,strain:strain,otH:otH,cpc:cpc,cost:cost,safety:safety,bottleneck:bn};
+  }
+  function reco(inp){
+    var base=simCore(inp);
+    if(base.backlog>0){
+      var keys=[['rooms','a procedure room'],['phys','a physician'],['nurses','a nurse'],['techs','a technologist'],['beds','a recovery bed']],best=null,bg=0;
+      keys.forEach(function(kv){var i2=Object.assign({},inp);i2[kv[0]]=inp[kv[0]]+1;var g=simCore(i2).done-base.done;if(g>bg){bg=g;best=kv;}});
+      if(best) return '<b>Add '+best[1]+'</b> → +'+bg+' case'+(bg>1?'s':'')+' cleared a day. Adding anything else won’t move throughput until you fix the '+base.bottleneck.toLowerCase()+'.';
+      return '<b>'+base.backlog+' case'+(base.backlog>1?'s':'')+' won’t fit.</b> The '+base.bottleneck.toLowerCase()+' cap the day — one extra resource won’t clear it; you’d need to add several together.';
+    }
+    var keys2=[['beds','a recovery bed',140],['techs','a technologist',560],['rooms','a procedure room',900],['phys','a physician',1100],['nurses','a nurse',520]],minv={rooms:1,phys:1,nurses:1,techs:1,beds:1},trim=null;
+    keys2.forEach(function(kv){if(trim)return;if(inp[kv[0]]>minv[kv[0]]){var i2=Object.assign({},inp);i2[kv[0]]=inp[kv[0]]-1;if(simCore(i2).done===base.done)trim=kv;}});
+    if(trim) return '<b>All '+inp.cases+' cases served</b>, with capacity to spare. You could cut '+trim[1]+' (save ~$'+trim[2].toLocaleString()+' a day) with no drop in output — or book more cases.';
+    return '<b>All '+inp.cases+' cases served</b> — a well-balanced lab. Try booking more cases to find the next limit.';
+  }
+  function openPlanner(){
+    var st=document.querySelector('.ept-status'); if(st)st.style.display='none';
+    document.getElementById('hud').style.display='none';
+    document.getElementById('board').style.display='none';
+    var cfg=[['cases','Cases booked','ti-calendar',4,16,CONFIG.cases],['rooms','Procedure rooms','ti-door',1,4,CONFIG.rooms],['phys','Physicians','ti-user',1,4,CONFIG.phys],['nurses','Nurses','ti-users',1,8,CONFIG.nurses],['techs','Technologists','ti-tool',1,6,CONFIG.techs],['beds','Recovery beds','ti-bed',1,8,CONFIG.beds]];
+    var inputs=''; cfg.forEach(function(c){ inputs+='<div class="pl-row"><div class="pl-lab"><i class="ti '+c[2]+'" aria-hidden="true"></i>'+c[1]+'</div><input type="range" id="in-'+c[0]+'" min="'+c[3]+'" max="'+c[4]+'" step="1" value="'+c[5]+'"><span class="pl-val" id="v-'+c[0]+'">'+c[5]+'</span></div>'; });
+    document.getElementById('scene').innerHTML=
+      '<div class="pl-head"><div><div class="ept-time"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>What-if mode</div><div class="ept-h">Lab planner</div></div><button class="btn" id="back"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</button></div>'+
+      '<p class="ept-narr">Adjust the lab’s resources and the day’s demand — everything updates live, and your setup carries into the shift you play.</p>'+
+      '<div class="pl-grid"><div class="pl-inputs"><div class="brief-label">Inputs</div>'+inputs+'</div>'+
+      '<div class="pl-outputs"><div class="brief-label">Projected day</div><div class="pl-kpis" id="pl-kpis"></div><div id="pl-bottleneck"></div><div class="whatif"><i class="ti ti-bulb" aria-hidden="true"></i><div id="pl-insight"></div></div>'+
+      '<div class="brief-label" style="margin-top:16px">Optimal setups for this demand</div><div id="pl-opt"></div></div></div>'+
+      '<div class="ept-act" style="justify-content:center;margin-top:18px"><button class="btn primary btn-big" id="playcfg"><i class="ti ti-player-play" aria-hidden="true"></i> Play this shift</button></div>';
+    cfg.forEach(function(c){ document.getElementById('in-'+c[0]).addEventListener('input',updatePlanner); });
+    updatePlanner();
+  }
+  function updatePlanner(){
+    var ids=['cases','rooms','phys','nurses','techs','beds'], inp={};
+    ids.forEach(function(k){ var v=+document.getElementById('in-'+k).value; inp[k]=v; CONFIG[k]=v; document.getElementById('v-'+k).textContent=v; });
+    var r=simCore(inp);
+    function card(label,value,klass){ return '<div class="ept-metric"><div class="k">'+label+'</div><div class="v '+(klass||'')+'" style="font-size:20px">'+value+'</div></div>'; }
+    document.getElementById('pl-kpis').innerHTML=
+      card('Cases done',r.done+'<span class="u"> / '+inp.cases+'</span>', r.done>=inp.cases?'good':(r.done>=inp.cases*0.75?'warn':'bad'))+
+      card('Avg wait',r.wait+'<span class="u"> min</span>', r.wait<=30?'good':r.wait<=45?'warn':'bad')+
+      card('Staff strain',r.strain+'<span class="u"> %</span>', r.strain<=40?'good':r.strain<=65?'warn':'bad')+
+      card('Patient safety',r.safety+'<span class="u"> %</span>', r.safety>=85?'good':r.safety>=70?'warn':'bad')+
+      card('Overtime',r.otH+'<span class="u"> h</span>', r.otH===0?'good':r.otH<=3?'warn':'bad')+
+      card('Cost / case','$'+r.cpc.toLocaleString(),'');
+    var bnEl=document.getElementById('pl-bottleneck');
+    if(r.backlog>0){ bnEl.className='pl-bn warn'; bnEl.innerHTML='<i class="ti ti-alert-triangle" aria-hidden="true"></i><span>Bottleneck: <b>'+r.bottleneck+'</b> — '+r.backlog+' case'+(r.backlog>1?'s':'')+' can’t fit today</span>'; }
+    else { bnEl.className='pl-bn ok'; bnEl.innerHTML='<i class="ti ti-circle-check" aria-hidden="true"></i><span>No bottleneck — all '+inp.cases+' cases served</span>'; }
+    document.getElementById('pl-insight').innerHTML=reco(inp);
+    OPT_LEAN=findOptimal(inp.cases,false); OPT_SUS=findOptimal(inp.cases,true);
+    function cfgStr(c){return c.rooms+' rooms · '+c.phys+' phys · '+c.nurses+' nurses · '+c.techs+' techs · '+c.beds+' beds';}
+    var oh='';
+    if(OPT_LEAN){
+      var atLean=(r.backlog===0&&r.cost<=OPT_LEAN.res.cost);
+      var leanNote=atLean?'✓ you’re at this optimum':(r.backlog>0?'clears all '+inp.cases+' (yours clears '+r.done+')':'saves $'+(r.cost-OPT_LEAN.res.cost).toLocaleString()+'/day vs yours');
+      oh+='<div class="opt-row"><div><div class="ol"><i class="ti ti-trending-down" aria-hidden="true"></i>Leanest lab that clears the list</div><div class="oc">'+cfgStr(OPT_LEAN.inp)+' — $'+OPT_LEAN.res.cost.toLocaleString()+'/day · '+leanNote+'</div></div>'+(atLean?'':'<button class="btn" id="apply-lean">Apply</button>')+'</div>';
+    }
+    if(OPT_SUS){
+      var atSus=(r.backlog===0&&r.strain<=65&&r.safety>=85&&r.cost<=OPT_SUS.res.cost);
+      oh+='<div class="opt-row"><div><div class="ol"><i class="ti ti-shield-check" aria-hidden="true"></i>Sustainable lab (strain ≤ 65)</div><div class="oc">'+cfgStr(OPT_SUS.inp)+' — $'+OPT_SUS.res.cost.toLocaleString()+'/day · strain '+OPT_SUS.res.strain+'%'+(atSus?' · ✓ you’re here':'')+'</div></div>'+(atSus?'':'<button class="btn" id="apply-sus">Apply</button>')+'</div>';
+    } else {
+      oh+='<div class="opt-row"><div class="oc">No in-range setup keeps strain ≤ 65 at '+inp.cases+' cases — the real fix is spreading demand across more days.</div></div>';
+    }
+    document.getElementById('pl-opt').innerHTML=oh;
+  }
+  function findOptimal(cases,sustainable){
+    var best=null;
+    for(var ro=1;ro<=4;ro++)for(var p=1;p<=4;p++)for(var n=1;n<=8;n++)for(var t=1;t<=6;t++)for(var b=1;b<=8;b++){
+      var inp={cases:cases,rooms:ro,phys:p,nurses:n,techs:t,beds:b};
+      var s=simCore(inp);
+      if(s.done<cases) continue;
+      if(sustainable&&(s.strain>65||s.safety<85)) continue;
+      if(!best||s.cost<best.res.cost||(s.cost===best.res.cost&&(s.strain<best.res.strain||(s.strain===best.res.strain&&s.safety>best.res.safety)))) best={inp:inp,res:s};
+    }
+    return best;
+  }
+  function applyCfg(c){
+    ['rooms','phys','nurses','techs','beds'].forEach(function(k){ var el=document.getElementById('in-'+k); if(el) el.value=c[k]; });
+    updatePlanner();
+  }
+
+  function boot(){ newGame(); scene();
+    document.getElementById('scene').addEventListener('click',function(e){
+      if(e.target.closest('#start')){ step=0; phase='choose'; last=null; scene(); }
+      if(e.target.closest('#again')){ newGame(); scene(); }
+      if(e.target.closest('#planner')){ openPlanner(); }
+      if(e.target.closest('#playcfg')){ var s2=document.querySelector('.ept-status'); if(s2)s2.style.display=''; document.getElementById('hud').style.display=''; newGame(); step=0; phase='choose'; last=null; scene(); }
+      if(e.target.closest('#back')){ var st=document.querySelector('.ept-status'); if(st)st.style.display=''; document.getElementById('hud').style.display=''; newGame(); scene(); }
+      if(e.target.closest('#apply-lean')&&OPT_LEAN){ applyCfg(OPT_LEAN.inp); }
+      if(e.target.closest('#apply-sus')&&OPT_SUS){ applyCfg(OPT_SUS.inp); }
+    });
+  }
+  window.__ep={
+    hint:function(){ if(step>=0&&step<seq.length&&phase==='choose'){ var snap={cases:S.cases,wait:S.wait,strain:S.strain,safety:S.safety,cost:S.cost}; var vals=seq[step].choices.map(function(_,k){return optionValue(snap,S.flags,step,k);}); var bi=0; vals.forEach(function(v,k){if(v>vals[bi])bi=k;}); return bi; } return -1; },
+    best:function(){ return BEST0; }
+  };
+  boot();
+})();
+</script>
+</div>
+</body>
+</html>
