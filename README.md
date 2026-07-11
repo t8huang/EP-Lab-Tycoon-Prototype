@@ -29,8 +29,9 @@ A single day in the lab as a choose-your-path game:
 
 - **Randomized events** — every shift opens with a staffing decision, then draws 3 of 7 events (sick call, recovery-bed gridlock, emergency add-on, equipment fault, supply shortage, a tech leaving, an add-on request) in random order, so no two runs are alike
 - Each choice **ripples through the KPIs** — cases done, patient wait, staff strain, patient safety, and cost
-- **Coach feedback** — an exact solver enumerates every decision path for the day's draw, so after each choice you learn whether it was the strongest play (and if not, which one was)
-- **Shift report** — a three-point benchmark (average · best possible · you). Because the day's events are fixed once dealt, the game enumerates all 81 decision paths and reports the **average shift** (the exact expected score under random choices), the best possible, your result, how far above/below average you landed, and your percentile ("better than 74% of the ways today could have gone") — plus a coach review marking each decision ✓ or naming the stronger play
+- **Priorities, not right answers** — before the shift you pick what counts as a good day (Balanced, Safety first, Throughput push, or Staff wellbeing). All scoring, coaching, and benchmarks are relative to those weights. This is deliberate: real operational decisions have no universal best, only trade-offs under a value system — the tool makes that value system explicit and lets you change it
+- **Coach feedback** — an exact solver enumerates every decision path for the day's draw. After each choice it tells you which option scored highest *under your priorities*, and narrates the trade-off you made ("yours gained throughput but gave up more on patient safety")
+- **Shift report** — benchmarks your day against the full 81-path outcome distribution: the average shift (exact expected score under random choices), your percentile, and stars graded relative to what the day allowed. It also re-solves the day under the *other* priority profiles and reports how many calls would flip ("under Throughput push, 2 of today's 4 calls would flip") — demonstrating that "best" moves with the value weights
 
 ### 2. Lab planner (what-if)
 
