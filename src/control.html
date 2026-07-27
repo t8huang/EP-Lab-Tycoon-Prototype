@@ -38,15 +38,15 @@
   }}
   *{box-sizing:border-box}
   html,body{margin:0}
-  body{background:var(--ep-page);color:var(--ep-text);font-family:var(--ep-font);
-       -webkit-font-smoothing:antialiased;padding:14px;line-height:1.45}
-  .ept{max-width:1680px;margin:0 auto}
+  body{background:var(--ep-card);color:var(--ep-text);font-family:var(--ep-font);
+       -webkit-font-smoothing:antialiased;padding:0;line-height:1.45}
+  .ept{width:100%;margin:0}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-  .frame{background:var(--ep-card);border:1px solid var(--ep-line);border-radius:18px;overflow:hidden;
-         box-shadow:0 1px 3px rgba(20,20,18,.05)}
+  .frame{background:var(--ep-card);min-height:100vh;overflow:hidden}
 
-  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;
-       border-bottom:1px solid var(--ep-line);background:var(--ep-soft);flex-wrap:wrap}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 32px;
+       border-bottom:1px solid var(--ep-line);background:var(--ep-soft);flex-wrap:wrap;
+       position:sticky;top:0;z-index:20}
   .brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:19px;letter-spacing:-.01em}
   .logo{width:34px;height:34px;border-radius:10px;background:var(--ep-accent);color:#fff;
         display:flex;align-items:center;justify-content:center;font-size:20px}
@@ -57,19 +57,22 @@
   .tab.on{background:var(--ep-card);color:var(--ep-accent);box-shadow:0 1px 2px rgba(20,20,18,.12)}
 
   /* clock bar */
-  .clockbar{display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid var(--ep-line);
+  .clockbar{display:flex;align-items:center;gap:14px;padding:14px 32px;border-bottom:1px solid var(--ep-line);
             background:var(--ep-card);flex-wrap:wrap}
   .clockface{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;min-width:138px;letter-spacing:-.02em}
   .clockface.late{color:var(--ep-warn)}
-  .tadv{display:flex;gap:6px;flex-wrap:wrap}
+  .tadv{display:inline-flex;gap:0;background:var(--ep-inset);border-radius:11px;padding:3px}
+  .tadv .tbtn{border:0;background:transparent;border-radius:8px;padding:8px 15px;color:var(--ep-text2);font-weight:700}
   .tbtn{font:inherit;font-size:13.5px;font-weight:600;padding:8px 13px;border-radius:10px;cursor:pointer;
-        border:1px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2);display:inline-flex;align-items:center;gap:5px}
+        border:1px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2);display:inline-flex;align-items:center;gap:5px;
+        transition:background .12s,color .12s}
+  .tadv .tbtn:hover{background:var(--ep-card);color:var(--ep-accent);box-shadow:0 1px 2px rgba(20,20,18,.1)}
   .tbtn:hover{border-color:var(--ep-accent);color:var(--ep-accent)}
   .tbtn.on{background:var(--ep-accent-bg);border-color:var(--ep-accent);color:var(--ep-accent)}
   .grow{flex:1}
 
   /* youtube-style scrubber */
-  .scrub{display:flex;align-items:center;gap:14px;padding:12px 22px 16px;border-bottom:1px solid var(--ep-line);background:var(--ep-card)}
+  .scrub{display:flex;align-items:center;gap:16px;padding:12px 32px 18px;border-bottom:1px solid var(--ep-line);background:var(--ep-card)}
   .pbtn{width:46px;height:46px;border-radius:50%;border:0;background:var(--ep-accent);color:#fff;font-size:22px;
         cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none}
   @media (prefers-color-scheme:dark){.pbtn{color:#04241c}}
@@ -80,15 +83,17 @@
   .track .buf{position:absolute;left:0;top:0;height:100%;border-radius:999px;background:var(--ep-line2);opacity:.55}
   .track .prog{position:absolute;left:0;top:0;height:100%;border-radius:999px;background:var(--ep-accent)}
   .track .thumb{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--ep-accent);
-        border:3px solid var(--ep-card);transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.3)}
-  .track:hover .thumb{width:22px;height:22px}
-  .review{display:flex;align-items:center;gap:10px;padding:10px 22px;background:var(--ep-warn-bg);color:var(--ep-warn);
+        border:3px solid var(--ep-card);transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.3);
+        transition:width .12s ease,height .12s ease}
+  .track:hover .thumb,.thumb:hover{width:26px;height:26px}
+  .track:active .thumb{width:28px;height:28px}
+  .review{display:flex;align-items:center;gap:10px;padding:11px 32px;background:var(--ep-warn-bg);color:var(--ep-warn);
           font-weight:700;font-size:13.5px;border-bottom:1px solid var(--ep-line)}
   .review .tbtn{margin-left:auto;background:var(--ep-card)}
   .reviewing .cact,.reviewing .pm,.reviewing .rooms,.reviewing .equip .toggle,.reviewing .pips{opacity:.45;pointer-events:none}
 
   /* HUD */
-  .hud{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:18px 20px 6px}
+  .hud{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;padding:20px 32px 6px}
   .met{background:var(--ep-soft);border:1px solid var(--ep-line);border-radius:14px;padding:13px 15px;position:relative;overflow:hidden}
   .met::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ep-line2)}
   .met.good::before{background:var(--c-good)} .met.warn::before{background:var(--c-ideal)} .met.bad::before{background:var(--c-bad)}
@@ -98,7 +103,7 @@
   .v.good{color:var(--c-good)} .v.warn{color:var(--ep-warn)} .v.bad{color:var(--c-bad)}
 
   /* dashboard grid */
-  .dash{display:grid;grid-template-columns:1fr;gap:16px;padding:16px 22px 22px}
+  .dash{display:grid;grid-template-columns:1fr;gap:18px;padding:18px 32px 30px}
   @media(min-width:900px){.dash{grid-template-columns:300px minmax(0,1fr) 340px}}
   @media(min-width:900px) and (max-width:1180px){.dash{grid-template-columns:280px minmax(0,1fr)}
     .col-right{grid-column:1 / -1}}
@@ -200,37 +205,54 @@
   .mini:disabled{opacity:.4;cursor:not-allowed}
   .why{font-size:11.5px;font-weight:600;color:var(--ep-bad);text-align:right;max-width:130px;display:flex;align-items:center;gap:4px}
 
-  /* activity feed */
-  .col-right .card{position:sticky;top:16px}
-  .fitem{display:flex;gap:10px;align-items:flex-start;padding:10px 11px;border-radius:10px;margin-bottom:7px;
-         background:var(--ep-soft);border-left:3px solid var(--ep-line2);animation:slide .22s ease-out}
-  @keyframes slide{from{opacity:.2}to{opacity:1}}
-  .fitem .fi{width:24px;height:24px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;
-             font-size:14px;background:var(--ep-inset);color:var(--ep-text2)}
-  .fitem .fx{min-width:0}
-  .fitem .ftt{font-size:13.5px;font-weight:600;color:var(--ep-text);line-height:1.3}
-  .fitem .ft{font-size:11.5px;color:var(--ep-text3);font-variant-numeric:tabular-nums;font-weight:600;margin-top:1px}
-  .fitem.block{border-left-color:var(--c-bad)} .fitem.block .fi{background:var(--ep-bad-bg);color:var(--ep-bad)}
-  .fitem.complication{border-left-color:var(--c-bad)} .fitem.complication .fi{background:var(--ep-bad-bg);color:var(--ep-bad)}
-  .fitem.discharge{border-left-color:var(--c-good)} .fitem.discharge .fi{background:var(--ep-good-bg);color:var(--ep-good)}
-  .fitem.cancel{border-left-color:var(--c-ideal)} .fitem.cancel .fi{background:var(--ep-warn-bg);color:var(--ep-warn)}
-  .fitem.start{border-left-color:var(--s-proc)} .fitem.start .fi{background:var(--ep-blue-bg);color:var(--ep-blue)}
+  /* activity feed — chat-style, like a messaging thread */
+  .col-right .card{position:sticky;top:88px}
+  .chat{display:flex;flex-direction:column;gap:3px;max-height:66vh;overflow-y:auto;padding-right:2px}
+  .msg{display:flex;gap:9px;align-items:flex-start;margin-bottom:11px;animation:slide .22s ease-out}
+  @keyframes slide{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .msg .av{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+           font-size:15px;background:var(--ep-inset);color:var(--ep-text2)}
+  .msg .bcol{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+  .msg .bubble{background:var(--ep-inset);color:var(--ep-text);border-radius:4px 16px 16px 16px;padding:9px 13px;
+               font-size:14px;font-weight:500;line-height:1.35;max-width:100%}
+  .msg .stamp{font-size:11px;color:var(--ep-text3);font-weight:600;margin:4px 0 0 4px;font-variant-numeric:tabular-nums}
+  .msg.block .av,.msg.complication .av{background:var(--ep-bad-bg);color:var(--ep-bad)}
+  .msg.block .bubble,.msg.complication .bubble{background:var(--ep-bad-bg);color:var(--ep-bad)}
+  .msg.discharge .av{background:var(--ep-good-bg);color:var(--ep-good)}
+  .msg.discharge .bubble{background:var(--ep-good-bg);color:var(--ep-good)}
+  .msg.cancel .av{background:var(--ep-warn-bg);color:var(--ep-warn)}
+  .msg.cancel .bubble{background:var(--ep-warn-bg);color:var(--ep-warn)}
+  .msg.start .av{background:var(--ep-blue-bg);color:var(--ep-blue)}
+  .msg.start .bubble{background:var(--ep-blue-bg);color:var(--ep-blue)}
   .empty{font-size:13px;color:var(--ep-text3);padding:8px 2px}
 
   /* setup */
-  .setup{padding:22px 26px 26px}
+  .setup{padding:30px 40px 34px;max-width:1100px}
   .shead{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:0 0 3px;display:flex;align-items:center;gap:9px}
   .ssub{font-size:14px;color:var(--ep-text2);margin:0 0 18px}
   .setgrid{display:grid;grid-template-columns:1fr;gap:2px}
   @media(min-width:820px){.setgrid{grid-template-columns:1fr 1fr;gap:2px 34px}}
   .prio{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 6px}
-  .pchip{font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;
+  .pchip{position:relative;font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;
          border:1px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2)}
   .pchip.on{background:var(--ep-accent-bg);border-color:var(--ep-accent);color:var(--ep-accent)}
+  /* hover explainer for the priority chips */
+  .pchip[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 9px);
+    transform:translateX(-50%);width:230px;background:var(--ep-text);color:var(--ep-card);font-size:12.5px;
+    font-weight:500;line-height:1.4;text-align:left;padding:9px 12px;border-radius:10px;z-index:30;
+    box-shadow:0 4px 14px rgba(0,0,0,.22);pointer-events:none}
+  .pchip[data-tip]:hover::before{content:"";position:absolute;left:50%;bottom:calc(100% + 3px);
+    transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ep-text);z-index:30;pointer-events:none}
   .note{font-size:13px;color:var(--ep-text2);margin:6px 0 0;max-width:640px}
 
+  /* setup number entry */
+  .numin{font:inherit;width:66px;font-size:16px;font-weight:700;text-align:center;padding:7px 6px;border-radius:9px;
+         border:1px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text);font-variant-numeric:tabular-nums}
+  .numin:focus{outline:0;border-color:var(--ep-accent);box-shadow:0 0 0 3px var(--ep-accent-bg)}
+  .setpips{display:flex;flex-wrap:wrap;gap:4px;flex:1;min-height:26px;align-content:center}
+
   /* buttons / report */
-  .act{display:flex;justify-content:center;gap:10px;padding:18px 20px 22px;flex-wrap:wrap}
+  .act{display:flex;justify-content:center;gap:10px;padding:18px 40px 30px;flex-wrap:wrap}
   .btn{font:inherit;font-size:15px;font-weight:600;border-radius:12px;padding:11px 20px;cursor:pointer;
        border:1px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text);
        display:inline-flex;align-items:center;gap:8px;text-decoration:none}
@@ -239,7 +261,7 @@
   @media (prefers-color-scheme:dark){.btn.primary{color:#04241c}}
   .btn.big{font-size:17px;padding:14px 28px}
 
-  .report{padding:26px 30px 6px;text-align:center}
+  .report{padding:32px 44px 10px;text-align:center;max-width:1200px;margin:0 auto}
   .rphase{font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ep-accent);
           display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px}
   .rtitle{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px}
@@ -264,7 +286,7 @@
   .rolls ul{margin:0;padding-left:18px;color:var(--ep-text2)}
   .rolls li{margin-bottom:3px}
 
-  #scripted{width:100%;border:0;display:block;min-height:940px}
+  #scripted{width:100%;border:0;display:block;height:calc(100vh - 74px);min-height:700px}
   .hide{display:none !important}
 </style>
 </head>
@@ -275,8 +297,8 @@
   <div class="top">
     <div class="brand"><span class="logo" aria-hidden="true"><i class="ti ti-heartbeat"></i></span> EP Lab Tycoon</div>
     <div class="tabs">
-      <button class="tab on" id="tab-manual" data-mode="manual"><i class="ti ti-adjustments" aria-hidden="true"></i> Manual control</button>
-      <button class="tab" id="tab-scripted" data-mode="scripted"><i class="ti ti-cards" aria-hidden="true"></i> Scripted day</button>
+      <button class="tab on" id="tab-manual" data-mode="manual"><i class="ti ti-adjustments" aria-hidden="true"></i> Run the lab yourself</button>
+      <button class="tab" id="tab-scripted" data-mode="scripted"><i class="ti ti-cards" aria-hidden="true"></i> Play a guided day</button>
     </div>
   </div>
 
@@ -286,7 +308,7 @@
     <div id="body"></div>
   </div>
 
-  <iframe id="scripted" class="hide" title="Scripted day"></iframe>
+  <iframe id="scripted" class="hide" title="Play a guided day"></iframe>
 </div>
 </div>
 
@@ -526,7 +548,7 @@
         '<button class="btn primary" id="endshift"><i class="ti ti-flag-checkered"></i> End shift</button></div>'+
       '<div class="scrub">'+
         '<button class="pbtn" id="playpause" aria-label="'+(autoTimer?'Pause':'Play')+'">'+
-          '<i class="ti ti-player-'+(autoTimer?'pause':'play')+'-filled"></i></button>'+
+          '<i class="ti ti-player-'+(autoTimer?'pause':'play')+'"></i></button>'+
         '<span class="ptime cur">'+hhmm(M.clock)+'</span>'+
         '<div class="track" id="seek" role="slider" aria-label="Time of day">'+
           '<div class="buf" style="width:'+bufPct+'%"></div>'+
@@ -574,38 +596,50 @@
         '</div>'+
         '<div class="col-right"><div class="card">'+feed()+'</div></div>'+
       '</div>';
+    var chat=$('chat'); if (chat) chat.scrollTop=chat.scrollHeight;   // keep newest message in view
   }
+
+  /* Plain-language explanation of each priority, shown on hover. */
+  var PRIO_TIPS = {
+    balanced: 'Weighs patient safety, cases done, staff wellbeing and cost fairly evenly. A sensible default.',
+    safety:   'Protecting patients comes first — avoid complications and tired-team days, even if fewer cases get done.',
+    through:  'Get through as many cases as possible and clear the backlog, accepting more overtime and cost.',
+    staff:    'Look after the team — keep overtime and missed breaks down, even if it means a lighter list.'
+  };
 
   /* ---- setup with icon-fill controls ---- */
   function setup(){
     return '<div class="setup">'+
-      '<h2 class="shead"><i class="ti ti-settings" style="color:var(--ep-accent)"></i> Set up the day</h2>'+
-      '<p class="ssub">Tap the icons to set how much of each resource you have — each filled icon is one more.</p>'+
+      '<h2 class="shead">Set up the day</h2>'+
+      '<p class="ssub">Set how much of each resource you have — type a number or use the plus and minus buttons. There is no upper limit.</p>'+
       '<div class="setgrid">'+
         ['cases','rooms','phys','nurses','techs','beds','ward'].map(fillRow).join('')+
       '</div>'+
-      '<p class="cglab" style="margin:20px 0 6px"><i class="ti ti-target"></i> Priorities — what counts as a good day</p>'+
+      '<p class="cglab" style="margin:22px 0 8px">What counts as a good day</p>'+
       '<div class="prio">'+Object.keys(EPSim.PROFILES).map(function(k){
-        return '<button class="pchip'+(k===FORM.profile?' on':'')+'" data-prio="'+k+'">'+EPSim.PROFILES[k].label+'</button>';
+        return '<button class="pchip'+(k===FORM.profile?' on':'')+'" data-prio="'+k+'" data-tip="'+(PRIO_TIPS[k]||'')+'">'+EPSim.PROFILES[k].label+'</button>';
       }).join('')+'</div>'+
-      '<p class="note">Nothing runs on its own here. You bring each patient into a room, mark the procedure complete, move them to recovery and discharge them — and you can change who and what is available at any moment. The dashboard tracks how the real day compares to the ideal plan.</p>'+
-      '<div class="act" style="justify-content:flex-start;padding:20px 0 4px"><button class="btn primary big" id="openlab"><i class="ti ti-lock-open"></i> Open the lab</button></div></div>';
+      '<p class="note">Nothing runs on its own here. You bring each patient into a room, mark the procedure complete, move them to recovery and discharge them, and you can change who and what is available at any moment. The dashboard tracks how the real day compares to the ideal plan.</p>'+
+      '<div class="act" style="justify-content:flex-start;padding:22px 0 4px"><button class="btn primary big" id="openlab">Open the lab</button></div></div>';
   }
+  var ICONCAP = 40;   // stop drawing icons past this; the number field still goes as high as you like
   function fillRow(key){
     var r=RES[key], v=FORM[key], pips='';
-    for (var i=1;i<=r.max;i++)
-      pips+='<button class="pip'+(i<=v?' on':'')+'" data-setpip="'+key+'" data-n="'+i+'" aria-label="'+r.label+' '+i+'"><i class="ti '+r.icon+'"></i></button>';
-    return '<div class="resrow"><div class="rhead"><span class="rname"><i class="ti '+r.icon+'"></i>'+r.label+'</span>'+
-      '<span class="rcount">'+v+'</span></div>'+
-      '<div class="pipwrap"><div class="pips">'+pips+'</div>'+
-        '<div class="pm"><button data-set="'+key+'" data-d="-1">–</button><button data-set="'+key+'" data-d="1">+</button></div>'+
+    for (var i=1;i<=Math.min(v,ICONCAP);i++)
+      pips+='<span class="pip on" aria-hidden="true"><i class="ti '+r.icon+'"></i></span>';
+    if (v>ICONCAP) pips+='<span class="rcount" style="align-self:center;margin-left:4px">+'+(v-ICONCAP)+'</span>';
+    return '<div class="resrow"><div class="rhead"><span class="rname"><i class="ti '+r.icon+'"></i>'+r.label+'</span></div>'+
+      '<div class="pipwrap"><div class="setpips">'+pips+'</div>'+
+        '<div class="pm"><button data-set="'+key+'" data-d="-1">–</button>'+
+        '<input class="numin" type="number" inputmode="numeric" min="0" value="'+v+'" data-setnum="'+key+'" aria-label="'+r.label+'">'+
+        '<button data-set="'+key+'" data-d="1">+</button></div>'+
       '</div></div>';
   }
 
   /* ---- live availability panel ---- */
   function resources(){
     var occ=roomOccupied();
-    var h='<p class="ctitle"><i class="ti ti-adjustments"></i> Availability <span class="sub">edit anytime</span></p>';
+    var h='<p class="ctitle">Availability <span class="sub">edit anytime</span></p>';
     h+=staffFill('phys','ep'); h+=staffFill('nurses','nurse'); h+=staffFill('techs','tech');
 
     // rooms
@@ -633,7 +667,7 @@
        stepChip('ward',M.wardFree)+'</div></div>';
 
     // equipment
-    h+='<p class="ctitle" style="margin:14px 0 8px"><i class="ti ti-plug"></i> Instruments</p>';
+    h+='<p class="ctitle" style="margin:16px 0 8px">Instruments</p>';
     h+=equipRow('ti-topology-star-3','3D mapping system','mapping');
     h+=equipRow('ti-scan','Fluoroscopy / imaging','imaging');
     h+=equipRow('ti-vaccine','Ablation catheter stock','supply');
@@ -643,8 +677,8 @@
     var r=RES[reskey], avail=M.avail[role], planned=M.staffPlanned[role], busy;
     if (role==='nurse') busy=nursesInRooms()+recoveryNursesNeeded(); else if (role==='ep') busy=nursesInRooms(); else busy=nursesInRooms()*CREW.tech;
     busy=Math.min(busy, avail);
-    var pips='';
-    for (var i=1;i<=Math.max(planned,avail);i++){
+    var pips='', top=Math.min(Math.max(planned,avail), ICONCAP);
+    for (var i=1;i<=top;i++){
       var cls = i>avail ? 'out' : (i<=busy ? 'busy' : 'on');
       pips+='<button class="pip '+cls+'" data-availset="'+role+'" data-n="'+i+'"><i class="ti '+r.icon+'"></i></button>';
     }
@@ -671,7 +705,7 @@
   function paceCardInner(){
     var behind=behindBy();
     var ok=behind<=0;
-    return '<p class="ctitle"><i class="ti ti-chart-line"></i> Progress vs. the ideal plan'+
+    return '<p class="ctitle">Progress vs. the ideal plan'+
         '<span class="sub">cases completed by time of day</span></p>'+
       paceSVG()+
       '<div class="clegend">'+
@@ -746,7 +780,7 @@
     var keys=buckets.filter(function(b){return b.n>0;}).map(function(b){
       return '<span><span class="sw" style="background:'+b.color+'"></span>'+b.label+' '+b.n+'</span>';
     }).join('');
-    return '<p class="ctitle"><i class="ti ti-layout-distribute-horizontal"></i> Where every case stands</p>'+
+    return '<p class="ctitle">Where every case stands</p>'+
       '<div class="flow">'+segs+'</div><div class="flkey">'+keys+'</div>';
   }
 
@@ -759,7 +793,7 @@
       (groups[g]||groups.done).items.push(c);
     });
     groups.booked.items.sort(function(a,b){ return a.acuity-b.acuity || b.daysWaiting-a.daysWaiting; });
-    var h='<p class="ctitle"><i class="ti ti-clipboard-list"></i> Cases <span class="sub">advance each one yourself</span></p>';
+    var h='<p class="ctitle">Cases <span class="sub">advance each one yourself</span></p>';
     ['procedure','blocked','recovery','booked','done'].forEach(function(g){
       var grp=groups[g]; if (!grp.items.length) return;
       h+='<div class="cgrp"><p class="cglab">'+grp.label+' <span class="n">'+grp.items.length+'</span></p>'+
@@ -798,16 +832,16 @@
     return '<button class="mini icon" data-do="compl" data-id="'+c.id+'" title="Flag a complication"><i class="ti ti-alert-triangle"></i></button>';
   }
 
-  /* ---- feed ---- */
+  /* ---- feed: a chat-style thread, newest at the bottom ---- */
   function feed(){
-    var evs=M.feed.slice(-11).reverse();
+    var evs=M.feed.slice(-14);
     var icon={start:'ti-player-play',block:'ti-alert-triangle',discharge:'ti-circle-check',
               cancel:'ti-calendar-x',complication:'ti-alert-triangle'};
-    return '<p class="ctitle"><i class="ti ti-list"></i> Activity <span class="sub">most recent first</span></p>'+
-      (evs.length ? evs.map(function(e){
-        return '<div class="fitem '+e.kind+'"><span class="fi"><i class="ti '+(icon[e.kind]||'ti-point')+'"></i></span>'+
-          '<span class="fx"><span class="ftt">'+e.text+'</span><span class="ft">'+hhmm(e.t)+'</span></span></div>';
-      }).join('') : '<div class="empty">Nothing yet — open the lab and start a case.</div>');
+    return '<p class="ctitle">Activity</p>'+
+      (evs.length ? '<div class="chat" id="chat">'+evs.map(function(e){
+        return '<div class="msg '+e.kind+'"><span class="av"><i class="ti '+(icon[e.kind]||'ti-point')+'"></i></span>'+
+          '<div class="bcol"><div class="bubble">'+e.text+'</div><span class="stamp">'+hhmm(e.t)+'</span></div></div>';
+      }).join('')+'</div>' : '<div class="empty">Nothing yet — open the lab and start a case.</div>');
   }
 
   /* ---- report ---- */
@@ -851,7 +885,7 @@
         '</div>'+
         '<div class="rgrid">'+
           '<div class="rcard">'+
-            '<p class="ctitle"><i class="ti ti-chart-line"></i> How the day tracked against plan</p>'+
+            '<p class="ctitle">How the day tracked against plan</p>'+
             paceSVG()+
             '<div class="clegend">'+
               '<span class="key"><span class="kln ideal"></span>Ideal plan</span>'+
@@ -860,7 +894,7 @@
             '</div>'+
           '</div>'+
           '<div class="rcard">'+
-            '<p class="ctitle"><i class="ti ti-award"></i> Scored under '+EPSim.PROFILES[M.profile].label+'</p>'+
+            '<p class="ctitle">Scored under '+EPSim.PROFILES[M.profile].label+'</p>'+
             '<div class="kpibars">'+kb+'</div>'+
           '</div>'+
         '</div>'+
@@ -874,10 +908,9 @@
   /* ---- input ---- */
   $('manual').addEventListener('click', function(e){
     var el;
-    if ((el=e.target.closest('[data-setpip]'))){ FORM[el.getAttribute('data-setpip')]=+el.getAttribute('data-n'); renderBody(); return; }
     if ((el=e.target.closest('[data-set]'))){
       var k=el.getAttribute('data-set'), d=+el.getAttribute('data-d'), lo=(k==='rooms'||k==='cases')?1:0;
-      FORM[k]=clamp(FORM[k]+d, lo, RES[k].max); renderBody(); return;
+      FORM[k]=Math.max(lo, FORM[k]+d); renderBody(); return;   // no upper limit
     }
     if ((el=e.target.closest('[data-prio]'))){ FORM.profile=el.getAttribute('data-prio'); renderBody(); return; }
     if (e.target.closest('#openlab')){ openLab(); return; }
@@ -907,6 +940,15 @@
         [el.getAttribute('data-do')]||function(){})(id);
       return;
     }
+  });
+
+  /* Typed resource counts on the setup screen. 'change' fires on blur/Enter, so
+     the field keeps focus while you type and only re-renders once you're done. */
+  $('manual').addEventListener('change', function(e){
+    var el=e.target.closest('[data-setnum]'); if (!el) return;
+    var k=el.getAttribute('data-setnum'), lo=(k==='rooms'||k==='cases')?1:0;
+    var v=parseInt(el.value,10); if (isNaN(v)) v=lo;
+    FORM[k]=Math.max(lo, v); renderBody();
   });
 
   /* ---- scrubber drag (YouTube-style seek) ---- */
