@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EP Lab Tycoon — capacity waterfall</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+  /* Design tokens carried over from index.html so this panel drops straight in.
+     The two chart data colours are NOT brand tokens: the brand teal and the
+     neutral gray are indistinguishable under deuteranopia (OKLab dE 0.4), and
+     red-vs-teal fails too. Red + blue is the validated diverging pair. */
+  :root{
+    --ep-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --ep-page:#eceae3; --ep-card:#ffffff; --ep-soft:#f5f4ef; --ep-inset:#f0eee7;
+    --ep-line:rgba(20,20,18,.12); --ep-line2:rgba(20,20,18,.24);
+    --ep-text:#2b2b27; --ep-text2:#5f5e58; --ep-text3:#8a8980;
+    --ep-accent:#0f6e56; --ep-accent-bg:#e1f5ee;
+    --ep-good:#3b6d11; --ep-warn:#8a5206; --ep-bad:#a32d2d;
+    --c-loss:#a32d2d; --c-gain:#185fa5; --c-total:#5f5e58; --c-mute:#b4b2a9;
+    --r:10px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --ep-page:#191918; --ep-card:#242422; --ep-soft:#201f1d; --ep-inset:#1c1c1a;
+    --ep-line:rgba(255,255,255,.13); --ep-line2:rgba(255,255,255,.26);
+    --ep-text:#f1efe8; --ep-text2:#b7b5ab; --ep-text3:#8a8980;
+    --ep-accent:#5dcaa5; --ep-accent-bg:#0d3a30;
+    --ep-good:#97c459; --ep-warn:#efb44a; --ep-bad:#f09595;
+    --c-loss:#e24b4a; --c-gain:#378add; --c-total:#b4b2a9; --c-mute:#5f5e5a;
+  }}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--ep-page);color:var(--ep-text);font-family:var(--ep-font);
+       -webkit-font-smoothing:antialiased;padding:24px 12px;line-height:1.5}
+  .wrap{max-width:900px;margin:0 auto}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .card{background:var(--ep-card);border:0.5px solid var(--ep-line);border-radius:16px;
+        padding:18px 20px;margin-bottom:14px}
+  h1{font-size:22px;font-weight:500;margin:0 0 2px}
+  h2{font-size:16px;font-weight:500;margin:0 0 3px}
+  .sub{font-size:13.5px;color:var(--ep-text2);margin:0 0 14px}
+  .lbl{font-size:11.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+       color:var(--ep-text3);margin:0 0 10px}
+
+  /* one filter row, above everything it scopes */
+  .filters{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:flex-end}
+  .fld{display:flex;flex-direction:column;gap:4px;min-width:104px}
+  .fld label{font-size:12px;color:var(--ep-text2)}
+  .fld input[type=range]{width:104px;accent-color:var(--ep-accent)}
+  .fld .fv{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{font:inherit;font-size:12.5px;font-weight:500;padding:5px 12px;border-radius:999px;
+        border:0.5px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2);cursor:pointer}
+  .chip.on{background:var(--ep-accent-bg);border-color:var(--ep-accent);color:var(--ep-accent)}
+  .btn{font:inherit;font-size:13px;font-weight:500;padding:7px 13px;border-radius:var(--r);
+       border:0.5px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text);cursor:pointer;
+       display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{background:var(--ep-soft)}
+
+  .hero{font-size:48px;font-weight:500;line-height:1.05;margin:2px 0 2px}
+  .hero .of{color:var(--ep-text3);font-size:26px}
+  .heronote{font-size:13.5px;color:var(--ep-text2);margin:0}
+
+  /* horizontal waterfall — HTML bars so long cause names never clip */
+  .wf{margin-top:4px}
+  .row{display:grid;grid-template-columns:152px 1fr 64px;align-items:center;
+       gap:10px;height:30px;position:relative}
+  .rlab{font-size:13px;color:var(--ep-text2);text-align:right;white-space:nowrap;
+        overflow:hidden;text-overflow:ellipsis}
+  .rlab.tot{color:var(--ep-text);font-weight:500}
+  .track{position:relative;height:100%}
+  .bar{position:absolute;top:5px;height:20px;border-radius:4px;cursor:default}
+  .bar.tot{border-radius:0 4px 4px 0;left:0}
+  .conn{position:absolute;width:1px;background:var(--ep-line2);top:25px;height:10px}
+  .rval{font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+  .axis{display:grid;grid-template-columns:152px 1fr 64px;gap:10px;margin-top:2px}
+  .axline{position:relative;height:20px;border-top:1px solid var(--ep-line)}
+  .tick{position:absolute;top:3px;font-size:11.5px;color:var(--ep-text3);
+        font-variant-numeric:tabular-nums;transform:translateX(-50%)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--ep-text2)}
+  .key{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+  /* lost room-time: one series, emphasis on the largest cause */
+  .lt .row{grid-template-columns:172px 1fr 92px}
+  .lt .axis{grid-template-columns:172px 1fr 92px}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px}
+  .tile{background:var(--ep-soft);border-radius:var(--r);padding:10px 12px}
+  .tile .k{font-size:12px;color:var(--ep-text2)}
+  .tile .v{font-size:21px;font-weight:500;margin-top:3px;line-height:1.15}
+  .tile .u{font-size:12px;color:var(--ep-text3);font-weight:400}
+  .v.good{color:var(--ep-good)} .v.warn{color:var(--ep-warn)} .v.bad{color:var(--ep-bad)}
+
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{text-align:left;padding:7px 10px 7px 0;border-bottom:0.5px solid var(--ep-line)}
+  th{font-size:11.5px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ep-text3)}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;padding-right:20px}
+  td:last-child,th:last-child{padding-right:0}
+  details{margin-top:12px}
+  summary{font-size:12.5px;color:var(--ep-text2);cursor:pointer}
+  .tip{position:fixed;pointer-events:none;background:var(--ep-text);color:var(--ep-card);
+       font-size:12px;padding:6px 9px;border-radius:7px;opacity:0;transition:opacity .1s;z-index:9;
+       max-width:240px}
+  .decisions{font-size:13px;color:var(--ep-text2);margin:0}
+  .decisions b{color:var(--ep-text);font-weight:500}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2 class="sr">A capacity waterfall showing how many of the day's booked EP lab cases were completed and which cause accounted for each case that was not, driven by a live simulation of the lab you configure.</h2>
+
+  <div class="card">
+    <h1>Where the day went</h1>
+    <p class="sub">Every number here is counted from a simulated day, not authored. Change the lab and the day re-runs.</p>
+    <div class="filters" id="filters"></div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">Cases completed</div>
+    <div class="hero" id="hero">—</div>
+    <p class="heronote" id="heronote"></p>
+    <p class="decisions" id="decisions"></p>
+  </div>
+
+  <div class="card">
+    <h2>Capacity waterfall</h2>
+    <p class="sub">Booked, then every case the day gave back, attributed to what stopped it.</p>
+    <div class="wf" id="wf"></div>
+    <div class="legend" id="wflegend"></div>
+    <details><summary>Show the numbers as a table</summary><div id="wftable"></div></details>
+  </div>
+
+  <div class="card">
+    <h2>Room time that produced nothing</h2>
+    <p class="sub">Minutes when a room was open but not treating anyone, and what that is worth in cases.</p>
+    <div class="wf lt" id="lt"></div>
+    <details><summary>Show the numbers as a table</summary><div id="lttable"></div></details>
+  </div>
+
+  <div class="card">
+    <div class="lbl">The rest of the scorecard</div>
+    <div class="tiles" id="tiles"></div>
+  </div>
+
+  <div class="card">
+    <h2>Sent away today</h2>
+    <p class="sub">Who did not get treated, and how long they had already been waiting.</p>
+    <div id="cancelled"></div>
+  </div>
+</div>
+<div class="tip" id="tip"></div>
+
+<script src="sim.js"></script>
+<script>
+(function(){
+  var CFG = {cases:8, rooms:2, phys:2, nurses:5, techs:4, beds:4};
+  var SEED = 42, PROFILE = 'balanced';
+  var tip = document.getElementById('tip');
+
+  var FIELDS = [
+    ['cases','Cases booked',4,16],['rooms','Rooms',1,4],['phys','EPs',1,4],
+    ['nurses','Nurses',1,9],['techs','Techs',1,6],['beds','Recovery beds',1,8]
+  ];
+
+  function buildFilters(){
+    var h = '';
+    FIELDS.forEach(function(f){
+      h += '<div class="fld"><label for="in-'+f[0]+'">'+f[1]+'</label>'+
+           '<input type="range" id="in-'+f[0]+'" min="'+f[2]+'" max="'+f[3]+'" step="1" value="'+CFG[f[0]]+'">'+
+           '<span class="fv" id="fv-'+f[0]+'">'+CFG[f[0]]+'</span></div>';
+    });
+    h += '<div class="fld"><label>Priorities</label><div class="chips" id="profs">'+
+      Object.keys(EPSim.PROFILES).map(function(k){
+        return '<button class="chip'+(k===PROFILE?' on':'')+'" data-p="'+k+'">'+EPSim.PROFILES[k].label+'</button>';
+      }).join('')+'</div></div>';
+    h += '<div class="fld"><label>Another day</label>'+
+         '<button class="btn" id="reroll"><i class="ti ti-refresh" aria-hidden="true"></i> Re-roll</button></div>';
+    document.getElementById('filters').innerHTML = h;
+
+    FIELDS.forEach(function(f){
+      document.getElementById('in-'+f[0]).addEventListener('input', function(e){
+        CFG[f[0]] = +e.target.value;
+        document.getElementById('fv-'+f[0]).textContent = e.target.value;
+        render();
+      });
+    });
+    document.getElementById('profs').addEventListener('click', function(e){
+      var b = e.target.closest('.chip'); if(!b) return;
+      PROFILE = b.getAttribute('data-p');
+      Array.prototype.forEach.call(this.querySelectorAll('.chip'), function(c){
+        c.classList.toggle('on', c === b);
+      });
+      render();
+    });
+    document.getElementById('reroll').addEventListener('click', function(){
+      SEED = (SEED * 1103515245 + 12345) >>> 8 || 1; render();
+    });
+  }
+
+  function showTip(e, html){
+    tip.innerHTML = html; tip.style.opacity = 1;
+    var x = e.clientX + 14, y = e.clientY + 14;
+    if (x + 250 > window.innerWidth) x = e.clientX - 250;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  function hideTip(){ tip.style.opacity = 0; }
+
+  /* One bar row. Tooltips enhance; the value is always directly labelled too. */
+  function barRow(label, isTotal, startPct, widthPct, color, valueText, tipHtml, connPct){
+    var d = document.createElement('div');
+    d.className = 'row';
+    d.innerHTML =
+      '<div class="rlab'+(isTotal?' tot':'')+'" title="'+label+'">'+label+'</div>'+
+      '<div class="track">'+
+        '<div class="bar'+(isTotal?' tot':'')+'" style="left:'+startPct+'%;width:'+widthPct+'%;background:'+color+'"></div>'+
+        (connPct === null ? '' : '<div class="conn" style="left:'+connPct+'%"></div>')+
+      '</div>'+
+      '<div class="rval">'+valueText+'</div>';
+    var bar = d.querySelector('.bar');
+    bar.setAttribute('tabindex','0');
+    bar.setAttribute('role','img');
+    bar.setAttribute('aria-label', label + ': ' + valueText);
+    ['mousemove','focus'].forEach(function(ev){
+      bar.addEventListener(ev, function(e){ showTip(e.clientX ? e : {clientX:bar.getBoundingClientRect().right, clientY:bar.getBoundingClientRect().top}, tipHtml); });
+    });
+    ['mouseleave','blur'].forEach(function(ev){ bar.addEventListener(ev, hideTip); });
+    return d;
+  }
+
+  function axisRow(max, leftCol, integer){
+    var d = document.createElement('div');
+    d.className = 'axis';
+    d.style.gridTemplateColumns = leftCol;
+    // Half a case is not a tick anyone can read. Whole units on a count axis.
+    var mid = integer ? Math.round(max / 2) : Math.round(max / 2);
+    var vals = [0, mid, max].filter(function(v, i, a){ return a.indexOf(v) === i; });
+    var ticks = vals.map(function(t){
+      return '<span class="tick" style="left:'+(t / max * 100)+'%">'+t.toLocaleString()+'</span>';
+    }).join('');
+    d.innerHTML = '<div></div><div class="axline">'+ticks+'</div><div></div>';
+    return d;
+  }
+
+  function renderWaterfall(m){
+    var host = document.getElementById('wf');
+    host.innerHTML = '';
+    var rows = m.waterfall;
+    var max = 0, run = 0;
+    rows.forEach(function(r){ if(r.kind==='start'||r.kind==='gain') run += r.cases; max = Math.max(max, run); });
+    max = Math.max(max, m.completed, 1);
+
+    run = 0;
+    rows.forEach(function(r, i){
+      var isTotal = (r.kind === 'start' || r.kind === 'end');
+      var start, width, color, val, tipHtml, conn = null;
+
+      if (r.kind === 'start') {
+        start = 0; width = r.cases / max * 100; run = r.cases;
+        color = 'var(--c-total)'; val = String(r.cases);
+        tipHtml = '<b>'+r.cases+' cases</b> on the board at 07:00';
+        conn = width;
+      } else if (r.kind === 'end') {
+        start = 0; width = r.cases / max * 100;
+        color = 'var(--c-total)'; val = String(r.cases);
+        tipHtml = '<b>'+r.cases+' of '+m.scheduled+'</b> reached discharge';
+      } else if (r.kind === 'gain') {
+        start = run / max * 100; width = r.cases / max * 100; run += r.cases;
+        color = 'var(--c-gain)'; val = '+' + r.cases;
+        tipHtml = '<b>+'+r.cases+'</b> added to the list after 07:00';
+        conn = run / max * 100;
+      } else {
+        var lost = Math.abs(r.cases);
+        run -= lost;
+        start = run / max * 100; width = lost / max * 100;
+        color = 'var(--c-loss)'; val = '−' + lost;
+        tipHtml = '<b>'+lost+' case'+(lost>1?'s':'')+'</b> lost to '+r.label;
+        conn = run / max * 100;
+      }
+      if (i === rows.length - 1) conn = null;
+      host.appendChild(barRow(r.label, isTotal, start, Math.max(width, 0.6), color, val, tipHtml, conn));
+    });
+    host.appendChild(axisRow(max, '152px 1fr 64px', true));
+
+    document.getElementById('wflegend').innerHTML =
+      '<span class="key"><i class="sw" style="background:var(--c-total)"></i>total</span>'+
+      '<span class="key"><i class="sw" style="background:var(--c-gain)"></i>added to the list</span>'+
+      '<span class="key"><i class="sw" style="background:var(--c-loss)"></i>cases lost</span>';
+
+    var t = '<table><thead><tr><th>Step</th><th class="n">Cases</th></tr></thead><tbody>';
+    rows.forEach(function(r){
+      t += '<tr><td>'+r.label+'</td><td class="n">'+(r.cases>0&&r.kind==='gain'?'+':'')+r.cases+'</td></tr>';
+    });
+    document.getElementById('wftable').innerHTML = t + '</tbody></table>';
+  }
+
+  /* Emphasis: the biggest loss cause carries the loss colour, the rest recede. */
+  function renderLostTime(m){
+    var host = document.getElementById('lt');
+    host.innerHTML = '';
+    var rows = m.lostTime.filter(function(r){ return r.minutes > 0; })
+                         .sort(function(a,b){ return b.minutes - a.minutes; });
+    if (!rows.length) { host.innerHTML = '<p class="sub">No idle, blocked or down room time today.</p>'; return; }
+    var max = rows[0].minutes;
+    rows.forEach(function(r, i){
+      var color = i === 0 ? 'var(--c-loss)' : 'var(--c-mute)';
+      host.appendChild(barRow(r.label, false, 0, r.minutes / max * 100, color,
+        r.minutes + ' min',
+        '<b>'+r.minutes+' minutes</b> — worth about '+r.casesEquivalent+' cases', null));
+    });
+    host.appendChild(axisRow(max, '172px 1fr 92px', false));
+    var t = '<table><thead><tr><th>Cause</th><th class="n">Minutes</th><th class="n">Cases equivalent</th></tr></thead><tbody>';
+    rows.forEach(function(r){ t += '<tr><td>'+r.label+'</td><td class="n">'+r.minutes+'</td><td class="n">'+r.casesEquivalent+'</td></tr>'; });
+    document.getElementById('lttable').innerHTML = t + '</tbody></table>';
+  }
+
+  function tile(k, v, u, cls){
+    return '<div class="tile"><div class="k">'+k+'</div><div class="v '+(cls||'')+'">'+v+
+           (u?'<span class="u"> '+u+'</span>':'')+'</div></div>';
+  }
+  function renderTiles(m){
+    var util = Math.round(m.primeTimeUtilisation * 100);
+    var fc = m.firstCaseRooms ? Math.round(m.firstCaseOnTimePct * 100) : 0;
+    document.getElementById('tiles').innerHTML =
+      tile('Prime-time utilisation', util, '%', util >= 75 ? 'good' : util >= 55 ? 'warn' : 'bad') +
+      tile('First case on time', m.firstCaseOnTime + ' / ' + m.firstCaseRooms, '', fc >= 80 ? 'good' : fc >= 50 ? 'warn' : 'bad') +
+      tile('Median turnover', m.medianTurnover, 'min', m.medianTurnover <= 30 ? 'good' : m.medianTurnover <= 40 ? 'warn' : 'bad') +
+      tile('Ran late', m.ranLateMinutes, 'min', m.ranLateMinutes === 0 ? 'good' : m.ranLateMinutes <= 60 ? 'warn' : 'bad') +
+      tile('Overtime per head', m.overtimePerHead, 'min', m.overtimePerHead <= 30 ? 'good' : m.overtimePerHead <= 90 ? 'warn' : 'bad') +
+      tile('Missed breaks', m.missedBreaks, '', m.missedBreaks <= 2 ? 'good' : m.missedBreaks <= 6 ? 'warn' : 'bad') +
+      tile('Complications', m.complications + (m.escalations ? ' (' + m.escalations + ' escalated)' : ''), '',
+           m.complications === 0 ? 'good' : 'warn') +
+      tile('Blocked by recovery', m.blockedMinutes, 'min', m.blockedMinutes === 0 ? 'good' : m.blockedMinutes <= 60 ? 'warn' : 'bad') +
+      tile('Cost per case', '$' + m.costPerCase.toLocaleString(), '') +
+      tile('Margin', (m.margin < 0 ? '−$' : '$') + Math.abs(m.margin).toLocaleString(), '',
+           m.margin >= 0 ? 'good' : 'bad');
+  }
+
+  function renderCancelled(run){
+    var c = run.patients.filter(function(p){ return p.status === 'cancelled'; })
+                        .sort(function(a,b){ return b.daysWaiting - a.daysWaiting; });
+    if (!c.length) {
+      document.getElementById('cancelled').innerHTML = '<p class="sub">Nobody was sent away. Every booked case was treated.</p>';
+      return;
+    }
+    var t = '<table><thead><tr><th>Case</th><th class="n">Acuity</th><th class="n">Days waited</th><th>Reason</th></tr></thead><tbody>';
+    c.forEach(function(p){
+      // acuity 0 is the MOST urgent, so a falsy check would hide exactly the
+      // patient the reader most needs to see.
+      var ac = (p.acuity === 0) ? 'urgent' : (p.acuity == null ? '—' : p.acuity);
+      t += '<tr><td>'+p.typeLabel+'</td><td class="n">'+ac+'</td>'+
+           '<td class="n">'+p.daysWaiting+'</td><td>'+p.cancelReason+'</td></tr>';
+    });
+    document.getElementById('cancelled').innerHTML = t + '</tbody></table>';
+  }
+
+  function render(){
+    var weights = EPSim.PROFILES[PROFILE].w;
+    var sol = EPSim.enumerate(CFG, SEED, weights);
+    var path = sol.best.path;
+    var run = EPSim.runDay({config: CFG, seed: SEED, policy: EPSim.replay(path)});
+    var m = run.metrics;
+
+    // Same decisions, 200 other days: one seed is one sample, and saying so is cheap.
+    var spread = [];
+    for (var s = 1; s <= 200; s++) spread.push(EPSim.runDay({config: CFG, seed: s * 7919, policy: EPSim.replay(path)}).metrics.completed);
+    spread.sort(function(a,b){ return a-b; });
+
+    document.getElementById('hero').innerHTML =
+      m.completed + ' <span class="of">of ' + m.scheduled + '</span>';
+    document.getElementById('heronote').textContent =
+      'Across 200 other days with this lab and these decisions: typically ' +
+      spread[100] + ', ranging ' + spread[0] + ' to ' + spread[spread.length-1] + '.';
+    document.getElementById('decisions').innerHTML =
+      'Playing the highest-scoring line under <b>' + EPSim.PROFILES[PROFILE].label + '</b>: ' +
+      run.decisions.map(function(d){ return d.label.toLowerCase(); }).join(' · ') + '.';
+
+    renderWaterfall(m);
+    renderLostTime(m);
+    renderTiles(m);
+    renderCancelled(run);
+  }
+
+  buildFilters();
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EP Lab Tycoon</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<style>
+  :root{
+    --ep-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --ep-page:#eceae3; --ep-card:#ffffff; --ep-soft:#f5f4ef; --ep-inset:#f0eee7;
+    --ep-line:rgba(20,20,18,.12); --ep-line2:rgba(20,20,18,.24);
+    --ep-text:#2b2b27; --ep-text2:#5f5e58; --ep-text3:#8a8980;
+    --ep-accent:#0f6e56; --ep-accent-bg:#e1f5ee; --ep-accent-line:#5dcaa5;
+    --ep-good:#3b6d11; --ep-good-bg:#eaf3de;
+    --ep-warn:#8a5206; --ep-warn-bg:#faeeda;
+    --ep-bad:#a32d2d; --ep-bad-bg:#fcebeb;
+    --ep-blue:#185fa5; --ep-blue-bg:#e6f1fb;
+    --s-proc:#185fa5; --s-setup:#85b7eb; --s-turn:#b4b2a9;
+    --s-block:#a32d2d; --s-down:#8a5206; --s-idle:#e8e6df;
+    --r:10px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --ep-page:#191918; --ep-card:#242422; --ep-soft:#201f1d; --ep-inset:#1c1c1a;
+    --ep-line:rgba(255,255,255,.13); --ep-line2:rgba(255,255,255,.26);
+    --ep-text:#f1efe8; --ep-text2:#b7b5ab; --ep-text3:#8a8980;
+    --ep-accent:#5dcaa5; --ep-accent-bg:#0d3a30; --ep-accent-line:#0f6e56;
+    --ep-good:#97c459; --ep-good-bg:#213b08;
+    --ep-warn:#efb44a; --ep-warn-bg:#3a2606;
+    --ep-bad:#f09595; --ep-bad-bg:#3f1414;
+    --ep-blue:#85b7eb; --ep-blue-bg:#0c2a45;
+    --s-proc:#378add; --s-setup:#185fa5; --s-turn:#5f5e5a;
+    --s-block:#e24b4a; --s-down:#ba7517; --s-idle:#2f2f2c;
+  }}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--ep-page);color:var(--ep-text);font-family:var(--ep-font);
+       -webkit-font-smoothing:antialiased;padding:20px 12px;line-height:1.5}
+  .ept{max-width:880px;margin:0 auto}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .frame{background:var(--ep-card);border:0.5px solid var(--ep-line);border-radius:16px;overflow:hidden}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;
+       border-bottom:0.5px solid var(--ep-line);background:var(--ep-soft);flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:500;font-size:17px}
+  .logo{width:30px;height:30px;border-radius:8px;background:var(--ep-accent-bg);color:var(--ep-accent);
+        display:flex;align-items:center;justify-content:center;font-size:18px}
+  .clock{display:flex;align-items:center;gap:10px}
+  .clockface{font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;min-width:92px}
+  .spd{display:flex;gap:4px}
+  .sbtn{font:inherit;font-size:12px;font-weight:500;padding:4px 9px;border-radius:999px;cursor:pointer;
+        border:0.5px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2)}
+  .sbtn.on{background:var(--ep-accent-bg);border-color:var(--ep-accent);color:var(--ep-accent)}
+
+  .hud{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;padding:14px 18px 4px}
+  .met{background:var(--ep-soft);border-radius:var(--r);padding:9px 11px}
+  .met .k{font-size:11.5px;color:var(--ep-text2);display:flex;align-items:center;gap:5px}
+  .met .v{font-size:22px;font-weight:500;margin-top:2px;line-height:1.1}
+  .met .u{font-size:12px;color:var(--ep-text3);font-weight:400}
+  .v.good{color:var(--ep-good)} .v.warn{color:var(--ep-warn)} .v.bad{color:var(--ep-bad)}
+
+  /* the wall board */
+  .board{padding:12px 18px 6px}
+  .blab{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+        color:var(--ep-text3);margin:0 0 8px}
+  .lane{display:grid;grid-template-columns:74px 1fr;align-items:center;gap:10px;margin-bottom:5px}
+  .lname{font-size:12.5px;color:var(--ep-text2);white-space:nowrap}
+  .ltrack{position:relative;height:24px;background:var(--s-idle);border-radius:5px;overflow:hidden}
+  .blk{position:absolute;top:0;height:100%;overflow:hidden;white-space:nowrap;
+       font-size:11px;color:#fff;padding:3px 5px;line-height:18px}
+  @media (prefers-color-scheme:dark){.blk{color:#14140f}}
+  .blk.turnover,.blk.idle,.blk.closed{color:var(--ep-text2)}
+  .cursor{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ep-text);z-index:3}
+  .axis{display:grid;grid-template-columns:74px 1fr;gap:10px;margin-top:2px}
+  .axin{position:relative;height:16px}
+  .tk{position:absolute;font-size:11px;color:var(--ep-text3);transform:translateX(-50%);
+      font-variant-numeric:tabular-nums}
+  .lgd{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--ep-text2);margin-top:8px}
+  .key{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:10px;height:10px;border-radius:3px}
+
+  .bays{display:flex;gap:14px;flex-wrap:wrap;padding:6px 18px 10px}
+  .bay{flex:1;min-width:160px;border:0.5px dashed var(--ep-line2);border-radius:var(--r);
+       padding:8px 10px;background:var(--ep-inset)}
+  .bay .bl{font-size:11px;color:var(--ep-text3);display:flex;align-items:center;gap:5px}
+  .beds{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+  .bed{width:22px;height:15px;border:0.5px solid var(--ep-line2);border-radius:3px;background:var(--ep-card)}
+  .bed.full{background:var(--ep-accent-bg);border-color:var(--ep-accent)}
+  .bed.stuck{background:var(--ep-bad-bg);border-color:var(--ep-bad)}
+  .bed.locked{background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--ep-line) 3px,var(--ep-line) 4px)}
+  .bay .bv{font-size:13px;font-weight:500;margin-top:4px}
+
+  .feed{padding:4px 18px 12px}
+  .fitem{display:flex;gap:9px;font-size:13px;color:var(--ep-text2);padding:3px 0;
+         animation:slide .25s ease-out}
+  @keyframes slide{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+  .fitem .ft{font-variant-numeric:tabular-nums;color:var(--ep-text3);flex:none;width:62px}
+  .fitem.block{color:var(--ep-bad)} .fitem.discharge{color:var(--ep-good)}
+  .fitem.complication{color:var(--ep-bad);font-weight:500}
+  .fitem.cancel{color:var(--ep-warn)}
+
+  .scene{padding:14px 18px 18px;border-top:0.5px solid var(--ep-line);background:var(--ep-soft)}
+  .stime{font-size:12px;font-weight:500;letter-spacing:.03em;text-transform:uppercase;
+         color:var(--ep-accent);display:flex;align-items:center;gap:7px}
+  .sh{font-size:20px;font-weight:500;margin:5px 0 6px}
+  .snarr{font-size:15px;color:var(--ep-text2);margin:0 0 13px}
+  .choices{display:flex;flex-direction:column;gap:8px}
+  .ch{display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;background:var(--ep-card);
+      border:0.5px solid var(--ep-line2);border-radius:12px;padding:11px 13px;cursor:pointer;
+      font:inherit;color:inherit;transition:border-color .12s,background .12s}
+  .ch:hover{border-color:var(--ep-accent);background:var(--ep-accent-bg)}
+  .ch .ci{width:25px;height:25px;flex:none;border-radius:7px;background:var(--ep-inset);color:var(--ep-text2);
+          display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px}
+  .ch .ct{font-size:15px;font-weight:500}
+  .ch .chh{font-size:13px;color:var(--ep-text3);margin-top:1px}
+
+  .out{background:var(--ep-card);border:0.5px solid var(--ep-line);border-radius:12px;padding:13px}
+  .otag{font-size:11.5px;font-weight:500;color:var(--ep-text3);display:flex;align-items:center;gap:6px;margin-bottom:5px}
+  .otxt{font-size:15px;margin:0 0 10px}
+  .cf{border-top:0.5px dashed var(--ep-line2);padding-top:10px;margin-top:4px}
+  .cfrow{display:grid;grid-template-columns:1fr auto;gap:10px;font-size:13px;padding:3px 0;align-items:baseline}
+  .cfrow.you{font-weight:500;color:var(--ep-text)}
+  .cfrow.alt{color:var(--ep-text2)}
+  .cfn{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12.5px}
+  .verdictline{font-size:13px;font-weight:500;margin-top:9px;display:flex;gap:7px;align-items:flex-start}
+  .verdictline.ok{color:var(--ep-good)} .verdictline.no{color:var(--ep-warn)}
+
+  .act{display:flex;justify-content:flex-end;gap:9px;margin-top:12px;flex-wrap:wrap}
+  .btn{font:inherit;font-size:14px;font-weight:500;border-radius:var(--r);padding:9px 16px;cursor:pointer;
+       border:0.5px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text);
+       display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{background:var(--ep-soft)}
+  .btn.primary{background:var(--ep-accent);border-color:var(--ep-accent);color:#fff}
+  @media (prefers-color-scheme:dark){.btn.primary{color:#04241c}}
+  .btn.big{font-size:16px;padding:12px 24px;border-radius:12px}
+
+  .cover{padding:20px 18px 14px;text-align:center}
+  .hero{background:var(--ep-accent-bg);border:0.5px solid var(--ep-line);border-radius:16px;
+        padding:22px 18px 18px;margin-bottom:16px}
+  .emblem{width:60px;height:60px;border-radius:16px;background:var(--ep-accent);color:#fff;
+          display:inline-flex;align-items:center;justify-content:center;font-size:32px}
+  @media (prefers-color-scheme:dark){.emblem{color:#04241c}}
+  .ctitle{font-size:29px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin:10px 0 4px}
+  .ctitle .t2{color:var(--ep-accent)}
+  .ctag{font-size:15px;color:var(--ep-text2);margin:0 auto;max-width:430px}
+  .ecg{display:block;width:220px;height:24px;margin:14px auto 0}
+  .loadout{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;margin:0 0 16px}
+  .lt{background:var(--ep-soft);border:0.5px solid var(--ep-line);border-radius:12px;padding:10px 12px;text-align:left}
+  .lt i{font-size:17px;color:var(--ep-accent)}
+  .lt .lv{font-size:18px;font-weight:500;margin-top:3px}
+  .lt .ll{font-size:11.5px;color:var(--ep-text3)}
+  .prio{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin:0 0 12px}
+  .pchip{font:inherit;font-size:12.5px;font-weight:500;padding:6px 13px;border-radius:999px;cursor:pointer;
+         border:0.5px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2)}
+  .pchip.on{background:var(--ep-accent-bg);border-color:var(--ep-accent);color:var(--ep-accent)}
+  .note{font-size:12.5px;color:var(--ep-text3);margin:0 0 14px}
+
+  .stars{font-size:26px;color:var(--ep-line2);display:flex;gap:3px;justify-content:center;margin:2px 0 4px}
+  .stars i.on{color:var(--ep-warn)}
+  .verdict{text-align:center;font-size:16px;font-weight:500;margin:0 0 12px}
+  .center{text-align:center;font-size:13.5px;color:var(--ep-text2);margin:0 0 8px}
+  .center b{color:var(--ep-text)}
+  .recap{margin:2px 0 0;padding:0;list-style:none;font-size:13.5px}
+  .recap li{display:flex;gap:8px;padding:7px 0;border-top:0.5px solid var(--ep-line);color:var(--ep-text2)}
+  .recap li:first-child{border-top:0}
+  .recap b{font-weight:500;color:var(--ep-text)}
+  .rolls{background:var(--ep-bad-bg);border-radius:12px;padding:11px 13px;margin-top:12px;font-size:13.5px}
+  .rolls .rt{font-weight:500;color:var(--ep-text);margin-bottom:5px}
+  .rolls ul{margin:0;padding-left:17px;color:var(--ep-text2)}
+</style>
+</head>
+<body>
+<div class="ept">
+<h2 class="sr">EP Lab Tycoon: run a day in an electrophysiology lab. Watch a live room board play out in real time, interrupt it to make staffing and scheduling calls, and see what each call actually cost by replaying the same day under the options you did not take.</h2>
+<div class="frame">
+  <div class="top">
+    <div class="brand"><span class="logo" aria-hidden="true"><i class="ti ti-heartbeat"></i></span> EP Lab Tycoon</div>
+    <div class="clock" id="clockbar"></div>
+  </div>
+  <div id="hud"></div>
+  <div id="boardwrap"></div>
+  <div id="feed"></div>
+  <div id="scene"></div>
+</div>
+</div>
+
+<script src="sim.js"></script>
+<script>
+(function(){
+  var DAY0 = 7*60, DAYN = 19*60;
+  // 6 into two rooms is what this case mix actually supports. Booking 8 makes
+  // the day structurally impossible and the decisions stop mattering.
+  var CFG = {cases:6, rooms:2, phys:2, nurses:5, techs:4, beds:4};
+  var PROFILE = 'balanced', SEED = 20260727;
+  var decisions = [], phase = 'cover', run = null, evalCache = null;
+  var clock = DAY0, target = DAY0, speed = 6, timer = null, shownFeed = 0, lastChoice = null;
+
+  var SPEEDS = [['1x',3],['2x',6],['4x',14],['max',100]];
+  var STATE_LABEL = {procedure:'in case', setup:'setup', turnover:'turnover',
+                     blocked:'BLOCKED', down:'down', idle:'idle', closed:'closed'};
+
+  function $(id){ return document.getElementById(id); }
+  function hhmm(m){ return EPSim.hhmm(m); }
+  function pctX(t){ return (t - DAY0) / (DAYN - DAY0) * 100; }
+
+  /* ---- simulate: instant. The clock below is playback, not computation. ---- */
+  function resim(){
+    run = EPSim.runDay({config:CFG, seed:SEED, policy:EPSim.replay(decisions)});
+    return run;
+  }
+
+  function nextStop(){
+    return run.pending ? run.pending.time : Math.min(DAYN, run.metrics.lastCaseOutAt + 30);
+  }
+
+  /* ---- the wall board ---- */
+  function renderBoard(){
+    if (phase === 'cover'){ $('boardwrap').innerHTML=''; return; }
+    var h = '<div class="board"><p class="blab">The board</p>';
+    for (var r = 0; r < CFG.rooms; r++){
+      var blocks = run.intervals.filter(function(iv){
+        return iv.room === r && iv.to > DAY0 && iv.from < clock && iv.state !== 'closed';
+      });
+      var bh = '';
+      blocks.forEach(function(iv){
+        var to = Math.min(iv.to, clock), from = Math.max(iv.from, DAY0);
+        if (to <= from) return;
+        var w = (to - from)/(DAYN-DAY0)*100;
+        var p = iv.patient ? patientById(iv.patient) : null;
+        var lab = iv.state === 'procedure' && p ? p.name : (STATE_LABEL[iv.state]||iv.state);
+        bh += '<div class="blk '+iv.state+'" style="left:'+pctX(from)+'%;width:'+w+'%;background:var(--s-'+
+              ({procedure:'proc',setup:'setup',turnover:'turn',blocked:'block',down:'down',idle:'idle'}[iv.state]||'idle')+
+              ')" title="'+hhmm(from)+'–'+hhmm(to)+' '+(STATE_LABEL[iv.state]||iv.state)+(p?' · '+p.name:'')+'">'+
+              (w > 7 ? lab : '')+'</div>';
+      });
+      h += '<div class="lane"><div class="lname">EP lab '+(r+1)+'</div>'+
+           '<div class="ltrack">'+bh+'<div class="cursor" style="left:'+pctX(clock)+'%"></div></div></div>';
+    }
+    var ticks = '';
+    for (var t = DAY0; t <= DAYN; t += 120) ticks += '<span class="tk" style="left:'+pctX(t)+'%">'+hhmm(t).replace(':00','')+'</span>';
+    h += '<div class="axis"><div></div><div class="axin">'+ticks+'</div></div>'+
+      '<div class="lgd">'+
+        '<span class="key"><i class="sw" style="background:var(--s-proc)"></i>in case</span>'+
+        '<span class="key"><i class="sw" style="background:var(--s-setup)"></i>setup</span>'+
+        '<span class="key"><i class="sw" style="background:var(--s-turn)"></i>turnover</span>'+
+        '<span class="key"><i class="sw" style="background:var(--s-block)"></i>blocked — no bed</span>'+
+        '<span class="key"><i class="sw" style="background:var(--s-down)"></i>equipment down</span>'+
+      '</div></div>';
+    $('boardwrap').innerHTML = h + renderBays();
+  }
+
+  function patientById(id){
+    for (var i=0;i<run.patients.length;i++) if (run.patients[i].id === id) return run.patients[i];
+    return null;
+  }
+
+  function bedStateAt(t){
+    var usable = CFG.beds, occ = [], stuck = 0;
+    run.patients.forEach(function(p){
+      if (p.bedAt != null && p.bedAt <= t && (p.dischargedAt == null || p.dischargedAt > t)){
+        occ.push(p);
+        if (p.wardWaitFrom != null && p.wardWaitFrom <= t) stuck++;
+      }
+    });
+    return {usable:usable, occ:occ, stuck:stuck};
+  }
+
+  function renderBays(){
+    var b = bedStateAt(clock);
+    var beds = '';
+    for (var i=0;i<CFG.beds;i++){
+      var cls = i < b.occ.length ? (i < b.stuck ? 'bed stuck' : 'bed full') : 'bed';
+      beds += '<span class="'+cls+'"></span>';
+    }
+    var waiting = run.patients.filter(function(p){
+      return p.status !== 'cancelled' && (p.inRoomAt == null || p.inRoomAt > clock);
+    });
+    var next = waiting.slice(0,3).map(function(p){ return p.name+' <span style="color:var(--ep-text3)">'+p.daysWaiting+'d</span>'; }).join(' · ');
+    return '<div class="bays">'+
+      '<div class="bay"><div class="bl"><i class="ti ti-bed" aria-hidden="true"></i>Recovery</div>'+
+        '<div class="beds">'+beds+'</div>'+
+        '<div class="bv">'+b.occ.length+' of '+CFG.beds+(b.stuck?' · <span style="color:var(--ep-bad)">'+b.stuck+' stuck waiting for a ward bed</span>':'')+'</div></div>'+
+      '<div class="bay"><div class="bl"><i class="ti ti-users" aria-hidden="true"></i>Still waiting</div>'+
+        '<div class="bv">'+waiting.length+' patient'+(waiting.length===1?'':'s')+'</div>'+
+        '<div style="font-size:12px;color:var(--ep-text2);margin-top:2px">'+(next||'—')+'</div></div>'+
+    '</div>';
+  }
+
+  function renderHUD(){
+    if (phase === 'cover'){ $('hud').innerHTML=''; $('clockbar').innerHTML=''; return; }
+    var done = run.patients.filter(function(p){ return p.dischargedAt != null && p.dischargedAt <= clock; }).length;
+    var cancelled = run.patients.filter(function(p){ return p.status === 'cancelled'; }).length;
+    var blocked = run.intervals.filter(function(iv){ return iv.state==='blocked' && iv.from < clock; })
+                    .reduce(function(a,iv){ return a + (Math.min(iv.to,clock) - iv.from); },0);
+    var late = Math.max(0, clock - 17*60);
+    $('hud').innerHTML = '<div class="hud">'+
+      met('ti-stethoscope','Cases done', done+'<span class="u"> / '+run.patients.length+'</span>','') +
+      met('ti-user-x','Sent away', cancelled, cancelled===0?'good':cancelled<=2?'warn':'bad') +
+      met('ti-alert-triangle','Blocked', Math.round(blocked)+'<span class="u"> min</span>', blocked===0?'good':blocked<=45?'warn':'bad') +
+      met('ti-clock','Past 5pm', Math.round(late)+'<span class="u"> min</span>', late===0?'good':late<=60?'warn':'bad') +
+    '</div>';
+    $('clockbar').innerHTML =
+      '<span class="clockface">'+hhmm(clock)+'</span>'+
+      '<span class="spd">'+SPEEDS.map(function(s,i){
+        return '<button class="sbtn'+(speed===s[1]?' on':'')+'" data-sp="'+s[1]+'">'+s[0]+'</button>';
+      }).join('')+'</span>';
+  }
+  function met(icon,k,v,cls){
+    return '<div class="met"><div class="k"><i class="ti '+icon+'" aria-hidden="true"></i>'+k+'</div>'+
+           '<div class="v '+cls+'">'+v+'</div></div>';
+  }
+
+  /* ---- the live feed: real simulation events, revealed as the clock reaches them ---- */
+  function renderFeed(){
+    if (phase === 'cover'){ $('feed').innerHTML=''; return; }
+    var since = decisions.length ? lastDecisionTime() : DAY0;
+    var evs = run.timeline.filter(function(e){
+      return e.t >= since && e.t <= clock && e.kind !== 'decision' && e.kind !== 'break';
+    }).slice(-7);
+    $('feed').innerHTML = '<div class="feed">' + (evs.length ? evs.map(function(e){
+      return '<div class="fitem '+e.kind+'"><span class="ft">'+hhmm(e.t)+'</span><span>'+e.text+'</span></div>';
+    }).join('') : '<div class="fitem"><span class="ft"></span><span style="color:var(--ep-text3)">Quiet so far.</span></div>') + '</div>';
+  }
+  function lastDecisionTime(){
+    var d = run.timeline.filter(function(e){ return e.kind === 'decision'; });
+    return d.length ? d[d.length-1].t : DAY0;
+  }
+
+  /* ---- the clock: playback of an already-computed day ---- */
+  function tick(){
+    if (clock >= target){ stop(); arrive(); return; }
+    clock = Math.min(target, clock + speed);
+    renderHUD(); renderBoard(); renderFeed();
+  }
+  function play(){ stop(); timer = setInterval(tick, 40); }
+  function stop(){ if (timer){ clearInterval(timer); timer = null; } }
+
+  function arrive(){
+    if (run.pending){ phase = 'choose'; render(); }
+    else { phase = 'report'; clock = DAYN; renderHUD(); renderBoard(); render(); }
+  }
+
+  /* ---- screens ---- */
+  function render(){
+    renderHUD(); renderBoard(); renderFeed();
+    if (phase === 'cover') return void ($('scene').innerHTML = cover());
+    if (phase === 'running') return void ($('scene').innerHTML = runningStrip());
+    if (phase === 'choose') return void ($('scene').innerHTML = choose());
+    if (phase === 'outcome') return void ($('scene').innerHTML = outcome());
+    if (phase === 'report') return void ($('scene').innerHTML = report());
+  }
+
+  function cover(){
+    var staff = CFG.nurses + CFG.techs + CFG.phys;
+    return '<div class="cover"><div class="hero">'+
+      '<span class="emblem" aria-hidden="true"><i class="ti ti-heartbeat"></i></span>'+
+      '<div class="ctitle">EP Lab <span class="t2">Tycoon</span></div>'+
+      '<p class="ctag">Run the lab. Beat the backlog. Keep patients safe.</p>'+
+      '<svg class="ecg" viewBox="0 0 230 26" fill="none" stroke="var(--ep-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="0,13 72,13 84,13 92,4 102,22 112,13 150,13 160,8 170,18 180,13 230,13"/></svg>'+
+      '</div>'+
+      '<div class="loadout">'+
+        lt('ti-stethoscope',CFG.cases,'ablations booked')+
+        lt('ti-door',CFG.rooms,'EP lab'+(CFG.rooms>1?'s':''))+
+        lt('ti-bed',CFG.beds,'recovery beds')+
+        lt('ti-users',staff,CFG.nurses+' nurses · '+CFG.techs+' techs · '+CFG.phys+' EPs')+
+      '</div>'+
+      '<p class="blab" style="text-align:center">Priorities — what counts as a good day</p>'+
+      '<div class="prio">'+Object.keys(EPSim.PROFILES).map(function(k){
+        return '<button class="pchip'+(k===PROFILE?' on':'')+'" data-p="'+k+'">'+EPSim.PROFILES[k].label+'</button>';
+      }).join('')+'</div>'+
+      '<p class="note">The day runs in real time on the board above. It stops when it needs you.</p>'+
+      '<div class="act" style="justify-content:center"><button class="btn primary big" id="start">'+
+      '<i class="ti ti-player-play" aria-hidden="true"></i> Start the shift</button></div></div>';
+  }
+  function lt(i,v,l){ return '<div class="lt"><i class="ti '+i+'" aria-hidden="true"></i><div class="lv">'+v+'</div><div class="ll">'+l+'</div></div>'; }
+
+  /* Shown while the board plays. Without this the previous outcome card stayed
+     on screen with a live button on it — stale UI you could click again. */
+  function runningStrip(){
+    return '<div class="scene" style="padding:11px 18px"><div style="display:flex;'+
+      'justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">'+
+      '<span style="font-size:13.5px;color:var(--ep-text2)">'+
+      '<i class="ti ti-activity" aria-hidden="true"></i> The day is running. It stops when it needs you.</span>'+
+      '<button class="btn" id="pause">'+(timer
+        ? '<i class="ti ti-player-pause" aria-hidden="true"></i> Pause'
+        : '<i class="ti ti-player-play" aria-hidden="true"></i> Resume')+'</button>'+
+      '</div></div>';
+  }
+
+  function choose(){
+    var c = run.pending;
+    return '<div class="scene"><div class="stime"><i class="ti ti-alert-circle" aria-hidden="true"></i>'+
+      hhmm(c.time)+' &middot; '+c.tag+'</div>'+
+      '<div class="sh">'+c.title+'</div><p class="snarr">'+c.prompt+'</p>'+
+      '<div class="choices">'+c.options.map(function(o,i){
+        return '<button class="ch" data-i="'+i+'"><span class="ci">'+'ABC'[i]+'</span>'+
+               '<span><span class="ct">'+o.label+'</span><span class="chh">'+o.hint+'</span></span></button>';
+      }).join('')+'</div></div>';
+  }
+
+  /* The counterfactual: same day, same luck, the roads not taken. Measured. */
+  function outcome(){
+    var ev = evalCache, mine = ev.options[lastChoice.i];
+    var best = ev.options.reduce(function(a,b){ return b.score > a.score ? b : a; });
+    var prose = EPSim.OUTCOMES[lastChoice.decisionId + ':' + lastChoice.optionId] || '';
+    var isBest = mine.score >= best.score - 1e-9;
+
+    var rows = ev.options.map(function(o){
+      var m = o.metrics, you = o.index === lastChoice.i;
+      return '<div class="cfrow '+(you?'you':'alt')+'">'+
+        '<span>'+(you?'▸ ':'')+o.label+'</span>'+
+        '<span class="cfn">'+m.completed+' cases · '+m.overtimePerHead+' min OT · '+
+        m.complications+' compl.</span></div>';
+    }).join('');
+
+    var line = isBest
+      ? 'Best available call under your priorities — nothing on this day beats it.'
+      : '“'+best.label+'” ends the day better under your priorities: '+
+        deltaPhrase(mine.metrics, best.metrics)+'.';
+
+    return '<div class="scene"><div class="stime"><i class="ti ti-arrow-bounce" aria-hidden="true"></i>'+
+      hhmm(lastChoice.time)+' &middot; what happened</div>'+
+      '<div class="sh">'+lastChoice.label+'</div>'+
+      '<div class="out"><p class="otxt">'+prose+'</p>'+
+        '<div class="cf"><div class="otag"><i class="ti ti-git-branch" aria-hidden="true"></i>'+
+        'the same day, played every other way</div>'+rows+
+        '<div class="verdictline '+(isBest?'ok':'no')+'">'+
+        '<i class="ti ti-'+(isBest?'check':'target-arrow')+'" aria-hidden="true"></i><span>'+line+'</span></div>'+
+        '</div></div>'+
+      '<div class="act"><button class="btn primary" id="next">Back to the board '+
+      '<i class="ti ti-arrow-right" aria-hidden="true"></i></button></div></div>';
+  }
+  function deltaPhrase(a, b){
+    var bits = [];
+    if (b.completed !== a.completed) bits.push((b.completed>a.completed?'+':'')+(b.completed-a.completed)+' cases');
+    if (b.overtimePerHead !== a.overtimePerHead) bits.push((b.overtimePerHead>a.overtimePerHead?'+':'')+(b.overtimePerHead-a.overtimePerHead)+' min overtime each');
+    if (b.complications !== a.complications) bits.push((b.complications>a.complications?'+':'')+(b.complications-a.complications)+' complications');
+    return bits.length ? bits.join(', ') : 'a narrower margin than the numbers show';
+  }
+
+  function report(){
+    var m = run.metrics, w = EPSim.PROFILES[PROFILE].w;
+    var sol = EPSim.enumerate(CFG, SEED, w);
+    var sc = EPSim.score(m, w), pct = Math.round(sol.percentileOf(sc)*100);
+    var stars = pct>=90?5:pct>=70?4:pct>=40?3:pct>=15?2:1;
+    var verd = ['Rough day. The review below shows where it went.',
+                'Several trades went the wrong way today.',
+                'A middle-of-the-road line through today.',
+                'Sharp calls — near the top of what today allowed.',
+                'You played today about as well as it could be played.'][stars-1];
+    var st = ''; for (var i=0;i<5;i++) st += '<i class="ti ti-star'+(i<stars?' on':'')+'" aria-hidden="true"></i>';
+
+    var rec = run.decisions.map(function(d,i){
+      return '<li><i class="ti ti-point" aria-hidden="true"></i><span><b>'+d.decision+':</b> '+d.label+'</span></li>';
+    }).join('');
+
+    var rolled = run.patients.filter(function(p){ return p.status === 'cancelled'; })
+      .sort(function(a,b){ return b.daysWaiting - a.daysWaiting; });
+    var rollHtml = rolled.length ? '<div class="rolls"><div class="rt">Rolls to tomorrow</div><ul>'+
+      rolled.map(function(p){ return '<li>'+p.name+' — '+p.typeLabel+', waiting '+p.daysWaiting+
+        ' days · '+p.cancelReason+'</li>'; }).join('')+'</ul></div>' : '';
+
+    return '<div class="scene"><div class="stime"><i class="ti ti-clipboard-check" aria-hidden="true"></i>'+
+      hhmm(m.lastCaseOutAt)+' &middot; end of shift</div><div class="sh">Shift report</div>'+
+      '<div class="stars">'+st+'</div><p class="verdict">'+verd+'</p>'+
+      '<p class="center">Scored under <b>'+EPSim.PROFILES[PROFILE].label+'</b> · better than <b>'+pct+
+        '%</b> of the '+sol.paths.length+' ways today could have gone</p>'+
+      '<p class="center"><b>'+m.completed+' of '+m.scheduled+'</b> cases done · '+
+        m.overtimePerHead+' min overtime each · '+m.complications+' complications · $'+
+        m.costPerCase.toLocaleString()+' a case</p>'+
+      rollHtml +
+      '<div class="sh" style="font-size:15px;margin:14px 0 2px">Your calls</div><ul class="recap">'+rec+'</ul>'+
+      '<div class="act" style="justify-content:center"><button class="btn primary" id="again">'+
+      '<i class="ti ti-refresh" aria-hidden="true"></i> Another shift</button>'+
+      '<a class="btn" href="dashboard.html"><i class="ti ti-chart-bar" aria-hidden="true"></i> Where the day went</a></div></div>';
+  }
+
+  /* ---- input ---- */
+  document.addEventListener('click', function(e){
+    var sp = e.target.closest('.sbtn');
+    if (sp){ speed = +sp.getAttribute('data-sp'); renderHUD(); if (timer) play(); return; }
+
+    var pc = e.target.closest('.pchip');
+    if (pc){ PROFILE = pc.getAttribute('data-p'); render(); return; }
+
+    if (e.target.closest('#start')){
+      decisions = []; clock = DAY0; resim(); target = nextStop();
+      phase = 'running'; render(); play(); return;
+    }
+    if (e.target.closest('#again')){
+      SEED = (SEED * 1103515245 + 12345) >>> 5 || 1;
+      decisions = []; clock = DAY0; phase = 'cover'; stop(); resim(); render(); return;
+    }
+    var ch = e.target.closest('.ch');
+    if (ch){
+      var i = +ch.getAttribute('data-i');
+      // evaluate BEFORE committing, so the counterfactual includes your own line
+      evalCache = EPSim.evaluateOptions(CFG, SEED, decisions.slice(), EPSim.PROFILES[PROFILE].w);
+      lastChoice = {i:i, time:run.pending.time, label:run.pending.options[i].label,
+                    decisionId:run.pending.id, optionId:run.pending.options[i].id};
+      decisions.push(i);
+      resim();
+      phase = 'outcome'; render(); return;
+    }
+    if (e.target.closest('#next')){
+      target = nextStop(); phase = 'running'; render(); play(); return;
+    }
+    if (e.target.closest('#pause')){
+      if (timer) stop(); else play();
+      $('scene').innerHTML = runningStrip();
+      return;
+    }
+  });
+
+  resim(); render();
+})();
+</script>
+</body>
+</html>
