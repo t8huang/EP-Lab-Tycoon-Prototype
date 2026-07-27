@@ -12,7 +12,7 @@ if (window.self !== window.top) document.documentElement.className += ' embedded
     --ep-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --ep-page:#eceae3; --ep-card:#ffffff; --ep-soft:#f5f4ef; --ep-inset:#f0eee7;
     --ep-line:rgba(20,20,18,.12); --ep-line2:rgba(20,20,18,.24);
-    --ep-text:#2b2b27; --ep-text2:#5f5e58; --ep-text3:#8a8980;
+    --ep-text:#1c1c19; --ep-text2:#26251f; --ep-text3:#3c3b34;
     --ep-accent:#0f6e56; --ep-accent-bg:#e1f5ee; --ep-accent-line:#5dcaa5;
     --ep-good:#3b6d11; --ep-good-bg:#eaf3de;
     --ep-warn:#8a5206; --ep-warn-bg:#faeeda;
@@ -25,7 +25,7 @@ if (window.self !== window.top) document.documentElement.className += ' embedded
   @media (prefers-color-scheme:dark){:root{
     --ep-page:#191918; --ep-card:#242422; --ep-soft:#201f1d; --ep-inset:#1c1c1a;
     --ep-line:rgba(255,255,255,.13); --ep-line2:rgba(255,255,255,.26);
-    --ep-text:#f1efe8; --ep-text2:#b7b5ab; --ep-text3:#8a8980;
+    --ep-text:#f1efe8; --ep-text2:#e6e4dc; --ep-text3:#bdbbb1;
     --ep-accent:#5dcaa5; --ep-accent-bg:#0d3a30; --ep-accent-line:#0f6e56;
     --ep-good:#97c459; --ep-good-bg:#213b08;
     --ep-warn:#efb44a; --ep-warn-bg:#3a2606;
@@ -52,8 +52,9 @@ if (window.self !== window.top) document.documentElement.className += ' embedded
   html.embedded .top{position:sticky;top:0;z-index:10}
   html.embedded .brand{display:none}      /* the outer control.html bar already brands the app */
   html.embedded.coverphase .top{display:none}   /* nothing to show there on the start screen */
-  /* fill the empty vertical space on the (otherwise top-heavy) cover screen */
-  html.embedded .cover{min-height:calc(100vh - 118px);display:flex;flex-direction:column;justify-content:center}
+  /* the cover's own top bar is hidden, so fill the height and keep the gaps tight */
+  html.embedded .cover{min-height:calc(100vh - 78px);display:flex;flex-direction:column;justify-content:center;
+       padding-top:8px;padding-bottom:8px}
   .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;
        border-bottom:0.5px solid var(--ep-line);background:var(--ep-soft);flex-wrap:wrap}
   .brand{display:flex;align-items:center;gap:10px;font-weight:500;font-size:17px}
@@ -148,26 +149,32 @@ if (window.self !== window.top) document.documentElement.className += ' embedded
   @media (prefers-color-scheme:dark){.btn.primary{color:#04241c}}
   .btn.big{font-size:16px;padding:12px 24px;border-radius:12px}
 
-  .cover{padding:20px 18px 14px;text-align:center}
-  .hero{background:var(--ep-accent-bg);border:0.5px solid var(--ep-line);border-radius:16px;
-        padding:22px 18px 18px;margin-bottom:16px}
-  .emblem{width:60px;height:60px;border-radius:16px;background:var(--ep-accent);color:#fff;
-          display:inline-flex;align-items:center;justify-content:center;font-size:32px}
+  .cover{padding:14px 18px;text-align:center;max-width:820px;margin:0 auto}
+  .hero{background:var(--ep-accent-bg);border:0.5px solid var(--ep-line);border-radius:20px;
+        padding:34px 24px 28px;margin-bottom:22px}
+  .emblem{width:78px;height:78px;border-radius:20px;background:var(--ep-accent);color:#fff;
+          display:inline-flex;align-items:center;justify-content:center;font-size:40px}
   @media (prefers-color-scheme:dark){.emblem{color:#04241c}}
-  .ctitle{font-size:29px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin:10px 0 4px}
+  .ctitle{font-size:40px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:16px 0 6px}
   .ctitle .t2{color:var(--ep-accent)}
-  .ctag{font-size:15px;color:var(--ep-text2);margin:0 auto;max-width:430px}
-  .ecg{display:block;width:220px;height:24px;margin:14px auto 0}
-  .loadout{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;margin:0 0 16px}
-  .lt{background:var(--ep-soft);border:0.5px solid var(--ep-line);border-radius:12px;padding:10px 12px;text-align:left}
-  .lt i{font-size:17px;color:var(--ep-accent)}
-  .lt .lv{font-size:18px;font-weight:500;margin-top:3px}
-  .lt .ll{font-size:11.5px;color:var(--ep-text3)}
-  .prio{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin:0 0 12px}
-  .pchip{font:inherit;font-size:12.5px;font-weight:500;padding:6px 13px;border-radius:999px;cursor:pointer;
+  .ctag{font-size:17px;color:var(--ep-text2);margin:0 auto;max-width:460px}
+  .ecg{display:block;width:280px;height:30px;margin:18px auto 0}
+  .loadout{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:0 0 22px}
+  .lt{background:var(--ep-soft);border:0.5px solid var(--ep-line);border-radius:16px;padding:18px 20px;text-align:left}
+  .lt i{font-size:22px;color:var(--ep-accent)}
+  .lt .lv{font-size:28px;font-weight:700;margin-top:6px;letter-spacing:-.01em}
+  .lt .ll{font-size:13px;color:var(--ep-text2);margin-top:2px}
+  .prio{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin:0 0 16px}
+  .pchip{position:relative;font:inherit;font-size:14px;font-weight:600;padding:9px 18px;border-radius:999px;cursor:pointer;
          border:0.5px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2)}
   .pchip.on{background:var(--ep-accent-bg);border-color:var(--ep-accent);color:var(--ep-accent)}
-  .note{font-size:12.5px;color:var(--ep-text3);margin:0 0 14px}
+  .pchip[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 9px);
+    transform:translateX(-50%);width:240px;background:var(--ep-text);color:var(--ep-card);font-size:12.5px;
+    font-weight:500;line-height:1.4;text-align:left;padding:10px 13px;border-radius:10px;z-index:30;
+    box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none}
+  .pchip[data-tip]:hover::before{content:"";position:absolute;left:50%;bottom:calc(100% + 3px);
+    transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ep-text);z-index:30;pointer-events:none}
+  .note{font-size:14px;color:var(--ep-text2);margin:0 0 16px}
 
   .stars{font-size:26px;color:var(--ep-line2);display:flex;gap:3px;justify-content:center;margin:2px 0 4px}
   .stars i.on{color:var(--ep-warn)}
@@ -207,6 +214,12 @@ if (window.self !== window.top) document.documentElement.className += ' embedded
   // the day structurally impossible and the decisions stop mattering.
   var CFG = {cases:6, rooms:2, phys:2, nurses:5, techs:4, beds:4};
   var PROFILE = 'balanced', SEED = 20260727;
+  var PRIO_TIPS = {
+    balanced: 'Weighs patient safety, cases done, staff wellbeing and cost fairly evenly. A sensible default.',
+    safety:   'Protecting patients comes first — avoid complications and tired-team days, even if fewer cases get done.',
+    through:  'Get through as many cases as possible and clear the backlog, accepting more overtime and cost.',
+    staff:    'Look after the team — keep overtime and missed breaks down, even if it means a lighter list.'
+  };
   var decisions = [], phase = 'cover', run = null, evalCache = null;
   var clock = DAY0, target = DAY0, speed = 6, timer = null, shownFeed = 0, lastChoice = null;
 
@@ -383,7 +396,7 @@ if (window.self !== window.top) document.documentElement.className += ' embedded
       '</div>'+
       '<p class="blab" style="text-align:center">Priorities — what counts as a good day</p>'+
       '<div class="prio">'+Object.keys(EPSim.PROFILES).map(function(k){
-        return '<button class="pchip'+(k===PROFILE?' on':'')+'" data-p="'+k+'">'+EPSim.PROFILES[k].label+'</button>';
+        return '<button class="pchip'+(k===PROFILE?' on':'')+'" data-p="'+k+'" data-tip="'+(PRIO_TIPS[k]||'')+'">'+EPSim.PROFILES[k].label+'</button>';
       }).join('')+'</div>'+
       '<p class="note">The day runs in real time on the board above. It stops when it needs you.</p>'+
       '<div class="act" style="justify-content:center"><button class="btn primary big" id="start">'+

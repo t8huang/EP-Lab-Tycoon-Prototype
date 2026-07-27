@@ -13,7 +13,7 @@
     --ep-font:"Hanken Grotesk",ui-rounded,"Segoe UI",system-ui,sans-serif;
     --ep-page:#e9e7df; --ep-card:#ffffff; --ep-soft:#f5f4ef; --ep-inset:#f0eee7;
     --ep-line:rgba(20,20,18,.12); --ep-line2:rgba(20,20,18,.22);
-    --ep-text:#232320; --ep-text2:#57564f; --ep-text3:#86857b;
+    --ep-text:#1c1c19; --ep-text2:#26251f; --ep-text3:#3c3b34;
     --ep-accent:#0f6e56; --ep-accent-bg:#e1f5ee; --ep-accent-line:#5dcaa5;
     --ep-good:#2f7d32; --ep-good-bg:#e6f4e2;
     --ep-warn:#9a6206; --ep-warn-bg:#fbefd8;
@@ -27,7 +27,7 @@
   @media (prefers-color-scheme:dark){:root{
     --ep-page:#151513; --ep-card:#242422; --ep-soft:#201f1d; --ep-inset:#1b1b19;
     --ep-line:rgba(255,255,255,.12); --ep-line2:rgba(255,255,255,.24);
-    --ep-text:#f4f2ec; --ep-text2:#bcbab0; --ep-text3:#8c8b81;
+    --ep-text:#f4f2ec; --ep-text2:#e8e6de; --ep-text3:#bfbdb3;
     --ep-accent:#5dcaa5; --ep-accent-bg:#0d3a30; --ep-accent-line:#0f6e56;
     --ep-good:#8fd06a; --ep-good-bg:#1e3a10;
     --ep-warn:#efb44a; --ep-warn-bg:#3a2606;
@@ -237,31 +237,25 @@
   .empty{font-size:13px;color:var(--ep-text3);padding:8px 2px}
 
   /* setup */
-  .setup{padding:32px 44px 40px;max-width:1280px;margin:0 auto}
-  .setcols{display:grid;grid-template-columns:1fr;gap:30px}
-  @media(min-width:960px){.setcols{grid-template-columns:minmax(0,1.55fr) minmax(300px,0.85fr)}}
-  .shead{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px}
-  .ssub{font-size:14.5px;color:var(--ep-text2);margin:0 0 20px;max-width:600px}
-  .setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
-  .rescard{border:1px solid var(--ep-line);border-radius:14px;padding:13px 14px;background:var(--ep-card)}
-  .rescard .rhead{margin-bottom:0}
-  .rescard .setpips{margin:9px 0 11px;min-height:26px}
-  .rescard .pm{justify-content:flex-start}
-  .rescard .numin{width:58px}
-  /* right-hand summary panel — fills the page and previews the loadout */
-  .setside{align-self:start;position:sticky;top:88px;background:var(--ep-soft);border:1px solid var(--ep-line);
-           border-radius:20px;padding:22px 22px 24px}
-  .sidehero{text-align:center;padding:4px 0 16px}
-  .emblem{width:58px;height:58px;border-radius:17px;background:var(--ep-accent);color:#fff;
-          display:inline-flex;align-items:center;justify-content:center;font-size:29px}
-  @media (prefers-color-scheme:dark){.emblem{color:#04241c}}
-  .stitle{font-size:25px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-top:12px}
-  .stitle b{color:var(--ep-accent);font-weight:800}
-  .stag{font-size:13.5px;color:var(--ep-text2);margin:5px auto 0;max-width:250px}
-  .loadout{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:6px 0 18px}
-  .lt{background:var(--ep-card);border:1px solid var(--ep-line);border-radius:13px;padding:12px 14px}
-  .lt .lv{font-size:22px;font-weight:800;letter-spacing:-.01em;line-height:1.05}
-  .lt .ll{font-size:12px;color:var(--ep-text3);margin-top:2px}
+  .setup{padding:30px 44px 40px;max-width:1500px;margin:0 auto}
+  .shead{font-size:28px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px}
+  .ssub{font-size:15px;color:var(--ep-text2);margin:0 0 22px;max-width:640px}
+  .setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(266px,1fr));gap:16px}
+  .rescard{border:1px solid var(--ep-line);border-radius:16px;padding:20px 22px;background:var(--ep-card)}
+  .rescard .rname{font-size:16px}
+  .rescard .rname i{font-size:20px}
+  .rescard .setpips{margin:14px 0 16px;min-height:30px;gap:6px}
+  .rescard .pip{width:32px;height:32px;font-size:17px;border-radius:9px}
+  .rescard .pm{justify-content:flex-start;gap:5px}
+  .rescard .pm button{width:34px;height:34px;font-size:18px}
+  .rescard .numin{width:66px;height:34px;font-size:17px}
+  /* moved metric tiles + open button — a full-width strip under the inputs */
+  .summary{margin-top:28px;background:var(--ep-soft);border:1px solid var(--ep-line);border-radius:20px;
+           padding:24px;display:flex;flex-direction:column;gap:20px}
+  .bigload{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:16px}
+  .bt{background:var(--ep-card);border:1px solid var(--ep-line);border-radius:16px;padding:20px;text-align:center}
+  .bt .bv{font-size:38px;font-weight:800;letter-spacing:-.02em;line-height:1}
+  .bt .bl{font-size:13.5px;color:var(--ep-text2);margin-top:5px}
   .prio{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 6px}
   .pchip{position:relative;font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;
          border:1px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2)}
@@ -658,35 +652,31 @@
   /* ---- setup with icon-fill controls ---- */
   function setup(){
     var staff=FORM.phys+FORM.nurses+FORM.techs;
-    var main='<h2 class="shead">Set up the day</h2>'+
+    return '<div class="setup">'+
+      '<h2 class="shead">Set up the day</h2>'+
       '<p class="ssub">Set how much of each resource you have — type a number or use the plus and minus buttons. There is no upper limit.</p>'+
       '<div class="setgrid">'+
         ['cases','rooms','phys','nurses','techs','beds','ward'].map(fillRow).join('')+
       '</div>'+
-      '<p class="cglab" style="margin:22px 0 8px">What counts as a good day</p>'+
+      '<p class="cglab" style="margin:26px 0 10px">What counts as a good day</p>'+
       '<div class="prio">'+Object.keys(EPSim.PROFILES).map(function(k){
         return '<button class="pchip'+(k===FORM.profile?' on':'')+'" data-prio="'+k+'" data-tip="'+(PRIO_TIPS[k]||'')+'">'+EPSim.PROFILES[k].label+'</button>';
       }).join('')+'</div>'+
-      '<p class="note">Nothing runs on its own here. You bring each patient into a room, mark the procedure complete, move them to recovery and discharge them, and you can change who and what is available at any moment. The dashboard tracks how the real day compares to the ideal plan.</p>';
-
-    var side='<aside class="setside">'+
-      '<div class="sidehero"><span class="emblem"><i class="ti ti-heartbeat"></i></span>'+
-        '<div class="stitle">EP Lab <b>Tycoon</b></div>'+
-        '<p class="stag">Run the lab. Beat the backlog. Keep patients safe.</p></div>'+
-      '<div class="loadout">'+
-        lt(FORM.cases,'cases booked')+
-        lt(FORM.rooms,'EP lab'+(FORM.rooms===1?'':'s'))+
-        lt(staff,'staff on shift')+
-        lt(FORM.beds,'recovery beds')+
-        lt(FORM.ward,'ward beds free')+
-        lt(EPSim.PROFILES[FORM.profile].label,'priority')+
+      '<p class="note">Nothing runs on its own here. You bring each patient into a room, mark the procedure complete, move them to recovery and discharge them, and you can change who and what is available at any moment. The dashboard tracks how the real day compares to the ideal plan.</p>'+
+      '<div class="summary">'+
+        '<div class="bigload">'+
+          bt(FORM.cases,'cases booked')+
+          bt(FORM.rooms,'EP lab'+(FORM.rooms===1?'':'s'))+
+          bt(staff,'staff on shift')+
+          bt(FORM.beds,'recovery beds')+
+          bt(FORM.ward,'ward beds free')+
+          bt(EPSim.PROFILES[FORM.profile].label,'priority')+
+        '</div>'+
+        '<button class="btn primary big" id="openlab" style="align-self:center;min-width:280px;justify-content:center">Open the lab</button>'+
       '</div>'+
-      '<button class="btn primary big" id="openlab" style="width:100%;justify-content:center">Open the lab</button>'+
-    '</aside>';
-
-    return '<div class="setup"><div class="setcols"><div class="setmain">'+main+'</div>'+side+'</div></div>';
+    '</div>';
   }
-  function lt(v,l){ return '<div class="lt"><div class="lv">'+v+'</div><div class="ll">'+l+'</div></div>'; }
+  function bt(v,l){ return '<div class="bt"><div class="bv">'+v+'</div><div class="bl">'+l+'</div></div>'; }
   var ICONCAP = 24;   // stop drawing icons past this; the number field still goes as high as you like
   function fillRow(key){
     var r=RES[key], v=FORM[key], pips='';
