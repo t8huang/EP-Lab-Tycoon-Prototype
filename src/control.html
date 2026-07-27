@@ -5,9 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EP Lab Tycoon — control panel</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ep-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --ep-font:"Hanken Grotesk",ui-rounded,"Segoe UI",system-ui,sans-serif;
     --ep-page:#e9e7df; --ep-card:#ffffff; --ep-soft:#f5f4ef; --ep-inset:#f0eee7;
     --ep-line:rgba(20,20,18,.12); --ep-line2:rgba(20,20,18,.22);
     --ep-text:#232320; --ep-text2:#57564f; --ep-text3:#86857b;
@@ -36,8 +39,8 @@
   *{box-sizing:border-box}
   html,body{margin:0}
   body{background:var(--ep-page);color:var(--ep-text);font-family:var(--ep-font);
-       -webkit-font-smoothing:antialiased;padding:16px;line-height:1.45}
-  .ept{max-width:1240px;margin:0 auto}
+       -webkit-font-smoothing:antialiased;padding:14px;line-height:1.45}
+  .ept{max-width:1680px;margin:0 auto}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
   .frame{background:var(--ep-card);border:1px solid var(--ep-line);border-radius:18px;overflow:hidden;
          box-shadow:0 1px 3px rgba(20,20,18,.05)}
@@ -54,9 +57,9 @@
   .tab.on{background:var(--ep-card);color:var(--ep-accent);box-shadow:0 1px 2px rgba(20,20,18,.12)}
 
   /* clock bar */
-  .clockbar{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--ep-line);
+  .clockbar{display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid var(--ep-line);
             background:var(--ep-card);flex-wrap:wrap}
-  .clockface{font-size:27px;font-weight:700;font-variant-numeric:tabular-nums;min-width:132px;letter-spacing:-.01em}
+  .clockface{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;min-width:138px;letter-spacing:-.02em}
   .clockface.late{color:var(--ep-warn)}
   .tadv{display:flex;gap:6px;flex-wrap:wrap}
   .tbtn{font:inherit;font-size:13.5px;font-weight:600;padding:8px 13px;border-radius:10px;cursor:pointer;
@@ -64,6 +67,25 @@
   .tbtn:hover{border-color:var(--ep-accent);color:var(--ep-accent)}
   .tbtn.on{background:var(--ep-accent-bg);border-color:var(--ep-accent);color:var(--ep-accent)}
   .grow{flex:1}
+
+  /* youtube-style scrubber */
+  .scrub{display:flex;align-items:center;gap:14px;padding:12px 22px 16px;border-bottom:1px solid var(--ep-line);background:var(--ep-card)}
+  .pbtn{width:46px;height:46px;border-radius:50%;border:0;background:var(--ep-accent);color:#fff;font-size:22px;
+        cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none}
+  @media (prefers-color-scheme:dark){.pbtn{color:#04241c}}
+  .pbtn:hover{filter:brightness(1.06)}
+  .ptime{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ep-text3);flex:none}
+  .ptime.cur{color:var(--ep-text);font-size:15.5px;min-width:96px}
+  .track{position:relative;flex:1;height:9px;border-radius:999px;background:var(--ep-inset);cursor:pointer;touch-action:none}
+  .track .buf{position:absolute;left:0;top:0;height:100%;border-radius:999px;background:var(--ep-line2);opacity:.55}
+  .track .prog{position:absolute;left:0;top:0;height:100%;border-radius:999px;background:var(--ep-accent)}
+  .track .thumb{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--ep-accent);
+        border:3px solid var(--ep-card);transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+  .track:hover .thumb{width:22px;height:22px}
+  .review{display:flex;align-items:center;gap:10px;padding:10px 22px;background:var(--ep-warn-bg);color:var(--ep-warn);
+          font-weight:700;font-size:13.5px;border-bottom:1px solid var(--ep-line)}
+  .review .tbtn{margin-left:auto;background:var(--ep-card)}
+  .reviewing .cact,.reviewing .pm,.reviewing .rooms,.reviewing .equip .toggle,.reviewing .pips{opacity:.45;pointer-events:none}
 
   /* HUD */
   .hud{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:18px 20px 6px}
@@ -76,9 +98,9 @@
   .v.good{color:var(--c-good)} .v.warn{color:var(--ep-warn)} .v.bad{color:var(--c-bad)}
 
   /* dashboard grid */
-  .dash{display:grid;grid-template-columns:1fr;gap:14px;padding:14px 20px 20px}
-  @media(min-width:900px){.dash{grid-template-columns:272px minmax(0,1fr) 300px}}
-  @media(min-width:900px) and (max-width:1140px){.dash{grid-template-columns:250px minmax(0,1fr)}
+  .dash{display:grid;grid-template-columns:1fr;gap:16px;padding:16px 22px 22px}
+  @media(min-width:900px){.dash{grid-template-columns:300px minmax(0,1fr) 340px}}
+  @media(min-width:900px) and (max-width:1180px){.dash{grid-template-columns:280px minmax(0,1fr)}
     .col-right{grid-column:1 / -1}}
   .card{background:var(--ep-card);border:1px solid var(--ep-line);border-radius:16px;padding:15px 16px}
   .card + .card{margin-top:14px}
@@ -217,23 +239,27 @@
   @media (prefers-color-scheme:dark){.btn.primary{color:#04241c}}
   .btn.big{font-size:17px;padding:14px 28px}
 
-  .report{padding:24px 26px 6px;text-align:center}
+  .report{padding:26px 30px 6px;text-align:center}
   .rphase{font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ep-accent);
           display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px}
-  .rtitle{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:0 0 6px}
-  .stars{font-size:34px;color:var(--ep-line2);display:flex;gap:5px;justify-content:center;margin:4px 0 6px}
+  .rtitle{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px}
+  .stars{font-size:38px;color:var(--ep-line2);display:flex;gap:6px;justify-content:center;margin:4px 0 6px}
   .stars i.on{color:var(--c-ideal)}
-  .verdict{font-size:17px;font-weight:600;margin:0 0 20px;color:var(--ep-text2)}
-  .rbig{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;max-width:860px;margin:0 auto 22px}
-  .rtile{background:var(--ep-soft);border:1px solid var(--ep-line);border-radius:14px;padding:16px}
-  .rtile .rv{font-size:32px;font-weight:700;letter-spacing:-.02em}
-  .rtile .rk{font-size:13px;color:var(--ep-text2);font-weight:600;margin-top:2px}
+  .verdict{font-size:18px;font-weight:600;margin:0 0 22px;color:var(--ep-text2)}
+  .rbig{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:0 0 22px}
+  .rtile{background:var(--ep-soft);border:1px solid var(--ep-line);border-radius:16px;padding:18px}
+  .rtile .rv{font-size:36px;font-weight:800;letter-spacing:-.02em}
+  .rtile .rk{font-size:13.5px;color:var(--ep-text2);font-weight:600;margin-top:3px}
   .rtile.good .rv{color:var(--c-good)} .rtile.warn .rv{color:var(--ep-warn)} .rtile.bad .rv{color:var(--c-bad)}
-  .kpibars{max-width:640px;margin:0 auto 8px;text-align:left}
-  .kpirow{margin-bottom:12px}
-  .kpirow .kl{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;margin-bottom:5px}
+  .rgrid{display:grid;grid-template-columns:1fr;gap:20px;text-align:left;margin-bottom:8px}
+  @media(min-width:860px){.rgrid{grid-template-columns:1.15fr 1fr;align-items:start}}
+  .rcard{background:var(--ep-card);border:1px solid var(--ep-line);border-radius:16px;padding:18px 20px}
+  .kpibars{text-align:left}
+  .kpirow{margin-bottom:14px}
+  .kpirow:last-child{margin-bottom:0}
+  .kpirow .kl{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:6px}
   .kpirow .kl .kv{font-variant-numeric:tabular-nums}
-  .rolls{background:var(--ep-bad-bg);border-radius:14px;padding:15px 18px;max-width:640px;margin:14px auto;text-align:left;font-size:13.5px}
+  .rolls{background:var(--ep-bad-bg);border-radius:16px;padding:16px 20px;margin:16px 0 8px;text-align:left;font-size:14px}
   .rolls .rt{font-weight:700;color:var(--ep-text);margin-bottom:8px;display:flex;align-items:center;gap:7px}
   .rolls ul{margin:0;padding-left:18px;color:var(--ep-text2)}
   .rolls li{margin-bottom:3px}
@@ -417,10 +443,25 @@
     log(name+(M.equip[key]?' back available':' marked unavailable'), M.equip[key]?'':'block'); renderAll(); }
   function roleName(r){ return {ep:'EP physician',nurse:'nurse',tech:'tech'}[r]; }
 
-  /* ---- clock ---- */
-  function advance(mins){ M.clock=Math.min(HARD, M.clock+mins); renderAll(); if (M.clock>=HARD) stopAuto(); }
-  function startAuto(){ if (autoTimer) return; autoTimer=setInterval(function(){ advance(10); }, 450); renderClock(); }
-  function stopAuto(){ if (autoTimer){ clearInterval(autoTimer); autoTimer=null; } renderClock(); }
+  /* ---- clock / playback ----
+     Auto-run moves in small 2-minute steps on a short interval so the line and
+     the clock grow smoothly rather than jumping. */
+  var STEP=2, TICK=200;
+  function advance(mins){ M.clock=Math.min(HARD, M.clock+mins); renderTick(); if (M.clock>=HARD) stopAuto(); }
+  function startAuto(){ if (autoTimer) return;
+    autoTimer=setInterval(function(){ if (M.clock>=HARD){ stopAuto(); return; } M.clock=Math.min(HARD,M.clock+STEP); renderTick(); }, TICK);
+    renderPlayer(); }
+  function stopAuto(){ if (autoTimer){ clearInterval(autoTimer); autoTimer=null; } renderPlayer(); }
+
+  /* The furthest point real actions have reached — you cannot act before it,
+     so scrubbing behind it is a read-only "review" of how the day looked then. */
+  function liveEdge(){
+    var t=DAY0;
+    M.cases.forEach(function(c){ [c.startedAt,c.procDoneAt,c.recoveredAt,c.dischargedAt].forEach(function(x){ if (x!=null && x>t) t=x; }); });
+    return t;
+  }
+  function reviewing(){ return M.clock < liveEdge()-1e-9; }
+  function seek(t){ M.clock=clamp(Math.round(t),DAY0,HARD); renderTick(); }
 
   /* ---- metrics ---- */
   function liveMetrics(){
@@ -461,21 +502,42 @@
   /* ==================================================================
      RENDER
      ================================================================== */
-  function renderAll(){ renderClock(); renderHUD(); renderBody(); }
+  function renderAll(){ renderPlayer(); renderHUD(); renderBody(); }
 
-  function renderClock(){
+  /* Light update on every clock change — only the time-sensitive pieces, so
+     auto-run stays smooth and the case board doesn't rebuild under you. */
+  function renderTick(){
+    renderPlayer(); renderHUD();
+    var pc=$('pacecard'); if (pc) pc.innerHTML=paceCardInner();
+    var d=document.querySelector('.dash'); if (d) d.classList.toggle('reviewing', reviewing());
+  }
+
+  function renderPlayer(){
     if (!M){ $('clockwrap').innerHTML=''; return; }
-    var late=M.clock>SCHED_END;
+    var late=M.clock>SCHED_END, rev=reviewing(), span=HARD-DAY0;
+    var pct=(M.clock-DAY0)/span*100, bufPct=(Math.max(liveEdge(),M.clock)-DAY0)/span*100;
     $('clockwrap').innerHTML =
       '<div class="clockbar"><span class="clockface'+(late?' late':'')+'">'+hhmm(M.clock)+'</span>'+
-      '<div class="tadv">'+
-        '<button class="tbtn" data-adv="15"><i class="ti ti-plus"></i>15m</button>'+
-        '<button class="tbtn" data-adv="30"><i class="ti ti-plus"></i>30m</button>'+
-        '<button class="tbtn" data-adv="60"><i class="ti ti-plus"></i>1h</button>'+
-        '<button class="tbtn'+(autoTimer?' on':'')+'" id="autobtn">'+
-          (autoTimer?'<i class="ti ti-player-pause"></i> pause':'<i class="ti ti-player-play"></i> auto-run')+'</button>'+
-      '</div><div class="grow"></div>'+
-      '<button class="btn primary" id="endshift"><i class="ti ti-flag-checkered"></i> End shift</button></div>';
+        '<div class="tadv">'+
+          '<button class="tbtn" data-adv="15"><i class="ti ti-plus"></i>15m</button>'+
+          '<button class="tbtn" data-adv="30"><i class="ti ti-plus"></i>30m</button>'+
+          '<button class="tbtn" data-adv="60"><i class="ti ti-plus"></i>1h</button>'+
+        '</div><div class="grow"></div>'+
+        '<button class="btn primary" id="endshift"><i class="ti ti-flag-checkered"></i> End shift</button></div>'+
+      '<div class="scrub">'+
+        '<button class="pbtn" id="playpause" aria-label="'+(autoTimer?'Pause':'Play')+'">'+
+          '<i class="ti ti-player-'+(autoTimer?'pause':'play')+'-filled"></i></button>'+
+        '<span class="ptime cur">'+hhmm(M.clock)+'</span>'+
+        '<div class="track" id="seek" role="slider" aria-label="Time of day">'+
+          '<div class="buf" style="width:'+bufPct+'%"></div>'+
+          '<div class="prog" style="width:'+pct+'%"></div>'+
+          '<div class="thumb" style="left:'+pct+'%"></div>'+
+        '</div>'+
+        '<span class="ptime">'+hhmm(HARD)+'</span>'+
+      '</div>'+
+      (rev ? '<div class="review"><i class="ti ti-eye"></i>Reviewing '+hhmm(M.clock)+
+        ' — controls are locked while you look back at the day.'+
+        '<button class="tbtn" id="jumplive"><i class="ti ti-player-track-next"></i> Return to live</button></div>' : '');
   }
 
   function renderHUD(){
@@ -503,10 +565,10 @@
   function renderBody(){
     if (!M){ $('body').innerHTML=setup(); return; }
     $('body').innerHTML =
-      '<div class="dash">'+
+      '<div class="dash'+(reviewing()?' reviewing':'')+'">'+
         '<div class="col-left"><div class="card">'+resources()+'</div></div>'+
         '<div class="col-main">'+
-          '<div class="card">'+paceCard()+'</div>'+
+          '<div class="card" id="pacecard">'+paceCardInner()+'</div>'+
           '<div class="card">'+flowCard()+'</div>'+
           '<div class="card">'+caseBoard()+'</div>'+
         '</div>'+
@@ -606,7 +668,7 @@
   }
 
   /* ---- pace chart: ideal (yellow) vs actual (green/red) ---- */
-  function paceCard(){
+  function paceCardInner(){
     var behind=behindBy();
     var ok=behind<=0;
     return '<p class="ctitle"><i class="ti ti-chart-line"></i> Progress vs. the ideal plan'+
@@ -787,8 +849,21 @@
           rtile(lm.compl?'bad':'good', lm.compl, 'Complications')+
           rtile(mgCls, '$'+lm.margin.toLocaleString(), 'Margin')+
         '</div>'+
-        '<p class="cglab" style="justify-content:center;margin-bottom:14px">Scored under '+EPSim.PROFILES[M.profile].label+'</p>'+
-        '<div class="kpibars">'+kb+'</div>'+
+        '<div class="rgrid">'+
+          '<div class="rcard">'+
+            '<p class="ctitle"><i class="ti ti-chart-line"></i> How the day tracked against plan</p>'+
+            paceSVG()+
+            '<div class="clegend">'+
+              '<span class="key"><span class="kln ideal"></span>Ideal plan</span>'+
+              '<span class="key"><span class="kln good"></span>On or ahead</span>'+
+              '<span class="key"><span class="kln bad"></span>Behind plan</span>'+
+            '</div>'+
+          '</div>'+
+          '<div class="rcard">'+
+            '<p class="ctitle"><i class="ti ti-award"></i> Scored under '+EPSim.PROFILES[M.profile].label+'</p>'+
+            '<div class="kpibars">'+kb+'</div>'+
+          '</div>'+
+        '</div>'+
         rollHtml+
       '</div>'+
       '<div class="act"><button class="btn primary" id="again"><i class="ti ti-refresh"></i> Run another day</button>'+
@@ -807,10 +882,15 @@
     if ((el=e.target.closest('[data-prio]'))){ FORM.profile=el.getAttribute('data-prio'); renderBody(); return; }
     if (e.target.closest('#openlab')){ openLab(); return; }
 
+    // playback / navigation — always allowed
     if ((el=e.target.closest('[data-adv]'))){ advance(+el.getAttribute('data-adv')); return; }
-    if (e.target.closest('#autobtn')){ autoTimer?stopAuto():startAuto(); return; }
+    if (e.target.closest('#playpause')){ autoTimer?stopAuto():startAuto(); return; }
+    if (e.target.closest('#jumplive')){ stopAuto(); seek(liveEdge()); renderBody(); return; }
     if (e.target.closest('#endshift')){ endShift(); return; }
     if (e.target.closest('#again')){ M=null; stopAuto(); renderAll(); return; }
+
+    // everything below changes the lab — locked while reviewing the past
+    if (reviewing()) return;
 
     if ((el=e.target.closest('[data-availset]'))){ setStaff(el.getAttribute('data-availset'), +el.getAttribute('data-n')); return; }
     if ((el=e.target.closest('[data-astep]'))){ bumpStaff(el.getAttribute('data-astep'), +el.getAttribute('data-d')); return; }
@@ -828,6 +908,20 @@
       return;
     }
   });
+
+  /* ---- scrubber drag (YouTube-style seek) ---- */
+  var seeking=false;
+  function seekFromEvent(e){
+    var tr=$('seek'); if (!tr) return;
+    var r=tr.getBoundingClientRect(), f=clamp((e.clientX-r.left)/r.width, 0, 1);
+    seek(DAY0 + f*(HARD-DAY0));
+  }
+  document.addEventListener('pointerdown', function(e){
+    if (!M || !e.target.closest('#seek')) return;
+    seeking=true; stopAuto(); seekFromEvent(e); e.preventDefault();
+  });
+  document.addEventListener('pointermove', function(e){ if (seeking) seekFromEvent(e); });
+  document.addEventListener('pointerup', function(){ if (seeking){ seeking=false; renderBody(); } });
 
   renderAll();
 })();
