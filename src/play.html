@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EP Lab Tycoon</title>
+<script>/* when embedded inside control.html, render edge-to-edge instead of as a card */
+if (window.self !== window.top) document.documentElement.className += ' embedded';</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
 <style>
   :root{
@@ -39,6 +41,19 @@
   .ept{max-width:880px;margin:0 auto}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
   .frame{background:var(--ep-card);border:0.5px solid var(--ep-line);border-radius:16px;overflow:hidden}
+  .backbtn{font:inherit;font-size:13px;font-weight:500;padding:6px 12px;border-radius:999px;cursor:pointer;
+           border:0.5px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2);
+           display:inline-flex;align-items:center;gap:5px}
+  .backbtn:hover{border-color:var(--ep-accent);color:var(--ep-accent)}
+  /* embedded in control.html: drop the card chrome so it reads as one page */
+  html.embedded body{padding:0}
+  html.embedded .ept{max-width:none;margin:0}
+  html.embedded .frame{border:0;border-radius:0;min-height:100vh}
+  html.embedded .top{position:sticky;top:0;z-index:10}
+  html.embedded .brand{display:none}      /* the outer control.html bar already brands the app */
+  html.embedded.coverphase .top{display:none}   /* nothing to show there on the start screen */
+  /* fill the empty vertical space on the (otherwise top-heavy) cover screen */
+  html.embedded .cover{min-height:calc(100vh - 118px);display:flex;flex-direction:column;justify-content:center}
   .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;
        border-bottom:0.5px solid var(--ep-line);background:var(--ep-soft);flex-wrap:wrap}
   .brand{display:flex;align-items:center;gap:10px;font-weight:500;font-size:17px}
@@ -110,8 +125,8 @@
   .ch:hover{border-color:var(--ep-accent);background:var(--ep-accent-bg)}
   .ch .ci{width:25px;height:25px;flex:none;border-radius:7px;background:var(--ep-inset);color:var(--ep-text2);
           display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px}
-  .ch .ct{font-size:15px;font-weight:500}
-  .ch .chh{font-size:13px;color:var(--ep-text3);margin-top:1px}
+  .ch .ct{display:block;font-size:15px;font-weight:500}
+  .ch .chh{display:block;font-size:13px;color:var(--ep-text3);margin-top:4px;line-height:1.4}
 
   .out{background:var(--ep-card);border:0.5px solid var(--ep-line);border-radius:12px;padding:13px}
   .otag{font-size:11.5px;font-weight:500;color:var(--ep-text3);display:flex;align-items:center;gap:6px;margin-bottom:5px}
@@ -174,6 +189,7 @@
 <div class="frame">
   <div class="top">
     <div class="brand"><span class="logo" aria-hidden="true"><i class="ti ti-heartbeat"></i></span> EP Lab Tycoon</div>
+    <button class="backbtn" id="backstart" style="display:none"><i class="ti ti-arrow-left" aria-hidden="true"></i> Start over</button>
     <div class="clock" id="clockbar"></div>
   </div>
   <div id="hud"></div>
@@ -341,6 +357,8 @@
 
   /* ---- screens ---- */
   function render(){
+    var bs = $('backstart'); if (bs) bs.style.display = (phase === 'cover') ? 'none' : 'inline-flex';
+    document.documentElement.classList.toggle('coverphase', phase === 'cover');
     renderHUD(); renderBoard(); renderFeed();
     if (phase === 'cover') return void ($('scene').innerHTML = cover());
     if (phase === 'running') return void ($('scene').innerHTML = runningStrip());
@@ -485,6 +503,9 @@
     if (e.target.closest('#start')){
       decisions = []; clock = DAY0; resim(); target = nextStop();
       phase = 'running'; render(); play(); return;
+    }
+    if (e.target.closest('#backstart')){
+      decisions = []; clock = DAY0; phase = 'cover'; stop(); resim(); render(); return;
     }
     if (e.target.closest('#again')){
       SEED = (SEED * 1103515245 + 12345) >>> 5 || 1;

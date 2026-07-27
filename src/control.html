@@ -69,6 +69,8 @@
   .tadv .tbtn:hover{background:var(--ep-card);color:var(--ep-accent);box-shadow:0 1px 2px rgba(20,20,18,.1)}
   .tbtn:hover{border-color:var(--ep-accent);color:var(--ep-accent)}
   .tbtn.on{background:var(--ep-accent-bg);border-color:var(--ep-accent);color:var(--ep-accent)}
+  .tbtn.ghost{color:var(--ep-text3);font-weight:600}
+  .tbtn.ghost:hover{color:var(--ep-accent)}
   .grow{flex:1}
 
   /* youtube-style scrubber */
@@ -91,6 +93,14 @@
           font-weight:700;font-size:13.5px;border-bottom:1px solid var(--ep-line)}
   .review .tbtn{margin-left:auto;background:var(--ep-card)}
   .reviewing .cact,.reviewing .pm,.reviewing .rooms,.reviewing .equip .toggle,.reviewing .pips{opacity:.45;pointer-events:none}
+  /* speed dial */
+  .speed{display:flex;align-items:center;gap:8px;flex:none}
+  .slab{font-size:12.5px;font-weight:700;color:var(--ep-text3)}
+  .sval{font-size:13.5px;font-weight:700;color:var(--ep-text2);min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
+  #speed{-webkit-appearance:none;appearance:none;width:104px;height:6px;border-radius:999px;background:var(--ep-inset);cursor:pointer}
+  #speed::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:17px;height:17px;border-radius:50%;
+    background:var(--ep-accent);border:3px solid var(--ep-card);box-shadow:0 1px 3px rgba(0,0,0,.28);cursor:grab}
+  #speed::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--ep-accent);border:3px solid var(--ep-card);cursor:grab}
 
   /* HUD */
   .hud{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;padding:20px 32px 6px}
@@ -227,11 +237,31 @@
   .empty{font-size:13px;color:var(--ep-text3);padding:8px 2px}
 
   /* setup */
-  .setup{padding:30px 40px 34px;max-width:1100px}
-  .shead{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:0 0 3px;display:flex;align-items:center;gap:9px}
-  .ssub{font-size:14px;color:var(--ep-text2);margin:0 0 18px}
-  .setgrid{display:grid;grid-template-columns:1fr;gap:2px}
-  @media(min-width:820px){.setgrid{grid-template-columns:1fr 1fr;gap:2px 34px}}
+  .setup{padding:32px 44px 40px;max-width:1280px;margin:0 auto}
+  .setcols{display:grid;grid-template-columns:1fr;gap:30px}
+  @media(min-width:960px){.setcols{grid-template-columns:minmax(0,1.55fr) minmax(300px,0.85fr)}}
+  .shead{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px}
+  .ssub{font-size:14.5px;color:var(--ep-text2);margin:0 0 20px;max-width:600px}
+  .setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+  .rescard{border:1px solid var(--ep-line);border-radius:14px;padding:13px 14px;background:var(--ep-card)}
+  .rescard .rhead{margin-bottom:0}
+  .rescard .setpips{margin:9px 0 11px;min-height:26px}
+  .rescard .pm{justify-content:flex-start}
+  .rescard .numin{width:58px}
+  /* right-hand summary panel — fills the page and previews the loadout */
+  .setside{align-self:start;position:sticky;top:88px;background:var(--ep-soft);border:1px solid var(--ep-line);
+           border-radius:20px;padding:22px 22px 24px}
+  .sidehero{text-align:center;padding:4px 0 16px}
+  .emblem{width:58px;height:58px;border-radius:17px;background:var(--ep-accent);color:#fff;
+          display:inline-flex;align-items:center;justify-content:center;font-size:29px}
+  @media (prefers-color-scheme:dark){.emblem{color:#04241c}}
+  .stitle{font-size:25px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-top:12px}
+  .stitle b{color:var(--ep-accent);font-weight:800}
+  .stag{font-size:13.5px;color:var(--ep-text2);margin:5px auto 0;max-width:250px}
+  .loadout{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:6px 0 18px}
+  .lt{background:var(--ep-card);border:1px solid var(--ep-line);border-radius:13px;padding:12px 14px}
+  .lt .lv{font-size:22px;font-weight:800;letter-spacing:-.01em;line-height:1.05}
+  .lt .ll{font-size:12px;color:var(--ep-text3);margin-top:2px}
   .prio{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 6px}
   .pchip{position:relative;font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;
          border:1px solid var(--ep-line2);background:var(--ep-card);color:var(--ep-text2)}
@@ -261,7 +291,7 @@
   @media (prefers-color-scheme:dark){.btn.primary{color:#04241c}}
   .btn.big{font-size:17px;padding:14px 28px}
 
-  .report{padding:32px 44px 10px;text-align:center;max-width:1200px;margin:0 auto}
+  .report{padding:32px 48px 10px;text-align:center}
   .rphase{font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ep-accent);
           display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px}
   .rtitle{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px}
@@ -526,40 +556,58 @@
      ================================================================== */
   function renderAll(){ renderPlayer(); renderHUD(); renderBody(); }
 
-  /* Light update on every clock change — only the time-sensitive pieces, so
-     auto-run stays smooth and the case board doesn't rebuild under you. */
+  /* Light update on every clock change — only touches the time-sensitive nodes
+     in place, so auto-run stays smooth and neither the case board nor the speed
+     dial rebuilds under your cursor. */
   function renderTick(){
-    renderPlayer(); renderHUD();
+    if (!M) return;
+    var span=HARD-DAY0, pct=(M.clock-DAY0)/span*100, bufPct=(Math.max(liveEdge(),M.clock)-DAY0)/span*100;
+    var cf=$('clockface'); if (cf){ cf.textContent=hhmm(M.clock); cf.classList.toggle('late', M.clock>SCHED_END); }
+    var pt=$('ptimecur'); if (pt) pt.textContent=hhmm(M.clock);
+    var pr=$('prog');  if (pr) pr.style.width=pct+'%';
+    var th=$('thumb'); if (th) th.style.left=pct+'%';
+    var bf=$('buf');   if (bf) bf.style.width=bufPct+'%';
+    renderHUD();
     var pc=$('pacecard'); if (pc) pc.innerHTML=paceCardInner();
     var d=document.querySelector('.dash'); if (d) d.classList.toggle('reviewing', reviewing());
+    var rb=$('reviewbar');
+    if (rb){ rb.style.display=reviewing()?'':'none'; var rt=$('reviewtime'); if (rt) rt.textContent=hhmm(M.clock); }
+    else if (reviewing()) renderPlayer();
   }
+
+  function speedLabel(){ var m=STEP/2; return (Number.isInteger(m)?m:m.toFixed(1))+'×'; }
 
   function renderPlayer(){
     if (!M){ $('clockwrap').innerHTML=''; return; }
     var late=M.clock>SCHED_END, rev=reviewing(), span=HARD-DAY0;
     var pct=(M.clock-DAY0)/span*100, bufPct=(Math.max(liveEdge(),M.clock)-DAY0)/span*100;
     $('clockwrap').innerHTML =
-      '<div class="clockbar"><span class="clockface'+(late?' late':'')+'">'+hhmm(M.clock)+'</span>'+
+      '<div class="clockbar">'+
+        '<button class="tbtn ghost" id="tosetup"><i class="ti ti-arrow-left"></i> Set-up</button>'+
+        '<span class="clockface'+(late?' late':'')+'" id="clockface">'+hhmm(M.clock)+'</span>'+
         '<div class="tadv">'+
-          '<button class="tbtn" data-adv="15"><i class="ti ti-plus"></i>15m</button>'+
-          '<button class="tbtn" data-adv="30"><i class="ti ti-plus"></i>30m</button>'+
-          '<button class="tbtn" data-adv="60"><i class="ti ti-plus"></i>1h</button>'+
+          '<button class="tbtn" data-adv="15">+15m</button>'+
+          '<button class="tbtn" data-adv="30">+30m</button>'+
+          '<button class="tbtn" data-adv="60">+1h</button>'+
         '</div><div class="grow"></div>'+
         '<button class="btn primary" id="endshift"><i class="ti ti-flag-checkered"></i> End shift</button></div>'+
       '<div class="scrub">'+
         '<button class="pbtn" id="playpause" aria-label="'+(autoTimer?'Pause':'Play')+'">'+
           '<i class="ti ti-player-'+(autoTimer?'pause':'play')+'"></i></button>'+
-        '<span class="ptime cur">'+hhmm(M.clock)+'</span>'+
+        '<span class="ptime cur" id="ptimecur">'+hhmm(M.clock)+'</span>'+
         '<div class="track" id="seek" role="slider" aria-label="Time of day">'+
-          '<div class="buf" style="width:'+bufPct+'%"></div>'+
-          '<div class="prog" style="width:'+pct+'%"></div>'+
-          '<div class="thumb" style="left:'+pct+'%"></div>'+
+          '<div class="buf" id="buf" style="width:'+bufPct+'%"></div>'+
+          '<div class="prog" id="prog" style="width:'+pct+'%"></div>'+
+          '<div class="thumb" id="thumb" style="left:'+pct+'%"></div>'+
         '</div>'+
         '<span class="ptime">'+hhmm(HARD)+'</span>'+
+        '<div class="speed"><span class="slab">Speed</span>'+
+          '<input type="range" id="speed" min="1" max="12" step="1" value="'+STEP+'" aria-label="Playback speed">'+
+          '<span class="sval" id="sval">'+speedLabel()+'</span></div>'+
       '</div>'+
-      (rev ? '<div class="review"><i class="ti ti-eye"></i>Reviewing '+hhmm(M.clock)+
-        ' — controls are locked while you look back at the day.'+
-        '<button class="tbtn" id="jumplive"><i class="ti ti-player-track-next"></i> Return to live</button></div>' : '');
+      '<div class="review" id="reviewbar" style="display:'+(rev?'':'none')+'"><i class="ti ti-eye"></i>'+
+        'Reviewing <span id="reviewtime">'+hhmm(M.clock)+'</span> — controls are locked while you look back at the day.'+
+        '<button class="tbtn" id="jumplive"><i class="ti ti-player-track-next"></i> Return to live</button></div>';
   }
 
   function renderHUD(){
@@ -609,8 +657,8 @@
 
   /* ---- setup with icon-fill controls ---- */
   function setup(){
-    return '<div class="setup">'+
-      '<h2 class="shead">Set up the day</h2>'+
+    var staff=FORM.phys+FORM.nurses+FORM.techs;
+    var main='<h2 class="shead">Set up the day</h2>'+
       '<p class="ssub">Set how much of each resource you have — type a number or use the plus and minus buttons. There is no upper limit.</p>'+
       '<div class="setgrid">'+
         ['cases','rooms','phys','nurses','techs','beds','ward'].map(fillRow).join('')+
@@ -619,21 +667,38 @@
       '<div class="prio">'+Object.keys(EPSim.PROFILES).map(function(k){
         return '<button class="pchip'+(k===FORM.profile?' on':'')+'" data-prio="'+k+'" data-tip="'+(PRIO_TIPS[k]||'')+'">'+EPSim.PROFILES[k].label+'</button>';
       }).join('')+'</div>'+
-      '<p class="note">Nothing runs on its own here. You bring each patient into a room, mark the procedure complete, move them to recovery and discharge them, and you can change who and what is available at any moment. The dashboard tracks how the real day compares to the ideal plan.</p>'+
-      '<div class="act" style="justify-content:flex-start;padding:22px 0 4px"><button class="btn primary big" id="openlab">Open the lab</button></div></div>';
+      '<p class="note">Nothing runs on its own here. You bring each patient into a room, mark the procedure complete, move them to recovery and discharge them, and you can change who and what is available at any moment. The dashboard tracks how the real day compares to the ideal plan.</p>';
+
+    var side='<aside class="setside">'+
+      '<div class="sidehero"><span class="emblem"><i class="ti ti-heartbeat"></i></span>'+
+        '<div class="stitle">EP Lab <b>Tycoon</b></div>'+
+        '<p class="stag">Run the lab. Beat the backlog. Keep patients safe.</p></div>'+
+      '<div class="loadout">'+
+        lt(FORM.cases,'cases booked')+
+        lt(FORM.rooms,'EP lab'+(FORM.rooms===1?'':'s'))+
+        lt(staff,'staff on shift')+
+        lt(FORM.beds,'recovery beds')+
+        lt(FORM.ward,'ward beds free')+
+        lt(EPSim.PROFILES[FORM.profile].label,'priority')+
+      '</div>'+
+      '<button class="btn primary big" id="openlab" style="width:100%;justify-content:center">Open the lab</button>'+
+    '</aside>';
+
+    return '<div class="setup"><div class="setcols"><div class="setmain">'+main+'</div>'+side+'</div></div>';
   }
-  var ICONCAP = 40;   // stop drawing icons past this; the number field still goes as high as you like
+  function lt(v,l){ return '<div class="lt"><div class="lv">'+v+'</div><div class="ll">'+l+'</div></div>'; }
+  var ICONCAP = 24;   // stop drawing icons past this; the number field still goes as high as you like
   function fillRow(key){
     var r=RES[key], v=FORM[key], pips='';
     for (var i=1;i<=Math.min(v,ICONCAP);i++)
       pips+='<span class="pip on" aria-hidden="true"><i class="ti '+r.icon+'"></i></span>';
     if (v>ICONCAP) pips+='<span class="rcount" style="align-self:center;margin-left:4px">+'+(v-ICONCAP)+'</span>';
-    return '<div class="resrow"><div class="rhead"><span class="rname"><i class="ti '+r.icon+'"></i>'+r.label+'</span></div>'+
-      '<div class="pipwrap"><div class="setpips">'+pips+'</div>'+
-        '<div class="pm"><button data-set="'+key+'" data-d="-1">–</button>'+
+    return '<div class="rescard"><div class="rhead"><span class="rname"><i class="ti '+r.icon+'"></i>'+r.label+'</span></div>'+
+      '<div class="setpips">'+pips+'</div>'+
+      '<div class="pm"><button data-set="'+key+'" data-d="-1">–</button>'+
         '<input class="numin" type="number" inputmode="numeric" min="0" value="'+v+'" data-setnum="'+key+'" aria-label="'+r.label+'">'+
         '<button data-set="'+key+'" data-d="1">+</button></div>'+
-      '</div></div>';
+    '</div>';
   }
 
   /* ---- live availability panel ---- */
@@ -900,7 +965,8 @@
         '</div>'+
         rollHtml+
       '</div>'+
-      '<div class="act"><button class="btn primary" id="again"><i class="ti ti-refresh"></i> Run another day</button>'+
+      '<div class="act"><button class="btn" id="backboard"><i class="ti ti-arrow-left"></i> Back to the board</button>'+
+      '<button class="btn primary" id="again"><i class="ti ti-refresh"></i> New day — set up again</button>'+
       '<a class="btn" href="dashboard.html"><i class="ti ti-chart-bar"></i> Where the day went</a></div>';
   }
   function rtile(cls,v,k){ return '<div class="rtile '+cls+'"><div class="rv">'+v+'</div><div class="rk">'+k+'</div></div>'; }
@@ -916,10 +982,12 @@
     if (e.target.closest('#openlab')){ openLab(); return; }
 
     // playback / navigation — always allowed
+    if (e.target.closest('#tosetup')){ if (confirm('Go back to set-up? This ends the current shift.')){ M=null; stopAuto(); renderAll(); } return; }
     if ((el=e.target.closest('[data-adv]'))){ advance(+el.getAttribute('data-adv')); return; }
     if (e.target.closest('#playpause')){ autoTimer?stopAuto():startAuto(); return; }
     if (e.target.closest('#jumplive')){ stopAuto(); seek(liveEdge()); renderBody(); return; }
     if (e.target.closest('#endshift')){ endShift(); return; }
+    if (e.target.closest('#backboard')){ renderAll(); return; }   // report → back to the live board
     if (e.target.closest('#again')){ M=null; stopAuto(); renderAll(); return; }
 
     // everything below changes the lab — locked while reviewing the past
@@ -949,6 +1017,13 @@
     var k=el.getAttribute('data-setnum'), lo=(k==='rooms'||k==='cases')?1:0;
     var v=parseInt(el.value,10); if (isNaN(v)) v=lo;
     FORM[k]=Math.max(lo, v); renderBody();
+  });
+
+  /* Speed dial — live, without rebuilding the player (so the drag survives). */
+  $('manual').addEventListener('input', function(e){
+    if (!e.target.closest('#speed')) return;
+    STEP=Math.max(1, +e.target.value||1);
+    var sv=$('sval'); if (sv) sv.textContent=speedLabel();
   });
 
   /* ---- scrubber drag (YouTube-style seek) ---- */
