@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>EPSim self-test</title></head>
+<body>
+<pre id="out">running…</pre>
+<script src="sim.js"></script>
+<script>
+var lines = [];
+console.log = function () { lines.push(Array.prototype.join.call(arguments, ' ')); };
+var res;
+try {
+  res = EPSim.selfTest(true);
+  lines.push('\n=== ' + (res.pass ? 'ALL PASS' : 'FAILURES: ' + res.failures.length) + ' ===');
+  res.failures.forEach(function (f) { lines.push('  ' + f); });
+} catch (e) {
+  lines.push('THREW: ' + (e && e.stack ? e.stack : e));
+}
+document.getElementById('out').textContent = lines.join('\n');
+</script>
+</body></html>
